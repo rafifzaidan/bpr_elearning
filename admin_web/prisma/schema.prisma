@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 1. Divisi (TI / Akuntansi) - Personalisasi konten per unit kerja
+model Division {
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  passing_grade Float    @default(75.0)
+  created_at    DateTime @default(now())
+
+  users   User[]
+  modules Module[]
+
+  @@map("divisions")
+}
+
+// 2. User (Pegawai) - Terhubung ke Supabase Auth UUID
+model User {
+  id            String    @id // UUID dari Supabase Auth
+  nip           String    @unique
+  email         String?   @unique
+  otp_code      String?
+  otp_expires_at DateTime?
+  full_name     String
+  division_id   Int
+  division      Division @relation(fields: [division_id], references: [id])
+  role          String   @default("EMPLOYEE")
+  mfa_enabled   Boolean  @default(false)
+  must_change_pw Boolean @default(true)
+  created_at    DateTime @default(now())
+
+  exam_results Result[]
+
+  @@map("users")
+}
+
+// 3. Modul (Materi per Divisi)
+model Module {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  file_url    String?  // Link Supabase Storage
+  file_type   String?  // 'pdf' | 'video'
+  division_id Int
+  division    Division @relation(fields: [division_id], references: [id])
+  created_at  DateTime @default(now())
+
+  questions Question[]
+  exams     Exam[]
+
+  @@map("modules")
+}
+
+// 4. Soal (Bank Soal per Modul)
+model Question {
+  id          Int    @id @default(autoincrement())
+  module_id   Int
+  module      Module @relation(fields: [module_id], references: [id])
+  text        String
+  options     Json   // {A: "...", B: "...", C: "...", D: "..."}
+  correct_ans String
+  weight      Int    @default(1)
+
+  @@map("questions")
+}
+
+// 5. Ujian (Jadwal per Modul)
+model Exam {
+  id         Int      @id @default(autoincrement())
+  module_id  Int
+  module     Module   @relation(fields: [module_id], references: [id])
+  title      String
+  start_date DateTime
+  end_date   DateTime
+  created_at DateTime @default(now())
+
+  results Result[]
+
+  @@map("exams")
+}
+
+// 6. Hasil Ujian Pegawai
+model Result {
+  id          Int      @id @default(autoincrement())
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
+  exam_id     Int
+  exam        Exam     @relation(fields: [exam_id], references: [id])
+  score       Float
+  is_passed   Boolean?
+  finished_at DateTime @default(now())
+
+  @@unique([user_id, exam_id])
+  @@map("results")
+}
