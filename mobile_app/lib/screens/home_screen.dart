@@ -19,224 +19,194 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.microtask(() => moduleProv.initModuleStream());
   }
 
+  IconData _getIconForModule(String title) {
+    final lowerTitle = title.toLowerCase();
+    if (lowerTitle.contains('pengenalan') || lowerTitle.contains('intro')) {
+      return Icons.info_outline;
+    } else if (lowerTitle.contains('elektronik') || lowerTitle.contains('electronic')) {
+      return Icons.electrical_services;
+    } else if (lowerTitle.contains('office') || lowerTitle.contains('kantor')) {
+      return Icons.edit;
+    } else if (lowerTitle.contains('geo')) {
+      return Icons.public;
+    }
+    return Icons.menu_book_rounded;
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final moduleProv = Provider.of<ModuleProvider>(context);
-    final colorScheme = Theme.of(context).colorScheme;
     final user = auth.user;
+    
+    // Warnabiru mirip Gambar 2
+    const primaryBlue = Color(0xFF0284C7); 
+    // Abu-abu gelap (Hampir Hitam)
+    const bgColor = Color(0xFF1E1E1E); 
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Greeting Header
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withValues(alpha: 0.8),
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
+      backgroundColor: bgColor,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // 1. Header Area (Latar Belakang Putih)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
                 ),
               ),
-              child: SafeArea(
-                bottom: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Halo, ${user?.fullName ?? 'User'}! 👋',
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  '📋 ${user?.divisionName ?? 'Divisi'}  •  NIP: ${user?.nip ?? '-'}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Welcome,',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
                         ),
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
-                          child: Text(
-                            (user?.fullName ?? 'U')[0].toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user?.fullName ?? 'Hafizh Geo',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: primaryBlue,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.label_important, size: 16, color: Colors.grey[600]),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Role: ${user?.divisionName ?? 'Akuntansi'}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ],
+                  ),
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: primaryBlue.withValues(alpha: 0.1),
+                    child: Text(
+                      (user?.fullName ?? 'H')[0].toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: primaryBlue,
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Section Title
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
-            sliver: SliverToBoxAdapter(
-              child: Row(
-                children: [
-                  Icon(Icons.menu_book_rounded,
-                      color: colorScheme.primary, size: 22),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Materi Pembelajaran',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-          ),
 
-          // Module List
-          if (moduleProv.isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (moduleProv.modules.isEmpty)
-            const SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.inbox_rounded, size: 60, color: Colors.grey),
-                    SizedBox(height: 12),
-                    Text('Belum ada materi untuk divisi Anda',
-                        style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final module = moduleProv.modules[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Card(
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ModuleDetailScreen(module: module),
+            // 2. Isi Menu / Modules (GridView)
+            Expanded(
+              child: moduleProv.isLoading
+                  ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                  : moduleProv.modules.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Belum ada materi divisi',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(20),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.85, 
+                          ),
+                          itemCount: moduleProv.modules.length,
+                          itemBuilder: (context, index) {
+                            final module = moduleProv.modules[index];
+                            final icon = _getIconForModule(module.title);
+                            return InkWell( // Tap behavior
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Membuka menu: ${module.title}'),
+                                    duration: const Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Circular Icon 
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: primaryBlue.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(icon, color: primaryBlue, size: 28),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      module.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        height: 1.2,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      module.description ?? 'Check our modules for ${module.title}...',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                        height: 1.3,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                // File type icon
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: module.fileType == 'video'
-                                        ? Colors.orange.withValues(alpha: 0.12)
-                                        : colorScheme.primaryContainer
-                                            .withValues(alpha: 0.5),
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: Icon(
-                                    module.fileType == 'video'
-                                        ? Icons.play_circle_outline_rounded
-                                        : Icons.picture_as_pdf_rounded,
-                                    color: module.fileType == 'video'
-                                        ? Colors.orange[700]
-                                        : colorScheme.primary,
-                                    size: 28,
-                                  ),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        module.title,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 15,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      if (module.description != null) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          module.description!,
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 13,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                                Icon(Icons.chevron_right_rounded,
-                                    color: Colors.grey[400]),
-                              ],
-                            ),
-                          ),
                         ),
-                      ),
-                    );
-                  },
-                  childCount: moduleProv.modules.length,
-                ),
-              ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+

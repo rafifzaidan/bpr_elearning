@@ -11,155 +11,203 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
     final user = auth.user;
-    final colorScheme = Theme.of(context).colorScheme;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    final scaffoldBg = isDark ? Colors.grey[900]! : const Color(0xFFF9FAFB);
+    final cardColor = isDark ? Colors.grey[850]! : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF1E293B);
+    final subtitleColor = isDark ? Colors.grey[400]! : const Color(0xFF94A3B8);
+    final borderColor = isDark ? Colors.grey[800]! : Colors.grey.shade200;
+    final primaryColor = const Color(0xFF0284C7);
+    final primaryLight = isDark ? primaryColor.withValues(alpha: 0.2) : const Color(0xFFF0F6FF);
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Profile Header
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withValues(alpha: 0.7),
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
+      backgroundColor: scaffoldBg,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pengaturan Akun',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                  letterSpacing: -0.5,
                 ),
               ),
-              child: SafeArea(
-                bottom: false,
+              const SizedBox(height: 32),
+
+              // Profile Card
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: borderColor),
+                  boxShadow: isDark
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: primaryLight,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.person, color: primaryColor, size: 32),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user?.fullName ?? 'Pegawai',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'NIP: ${user?.nip ?? '-'}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: subtitleColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.edit, color: primaryColor, size: 24),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Keamanan
+              Text(
+                'Keamanan',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: subtitleColor,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: borderColor),
+                  boxShadow: isDark
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                ),
                 child: Column(
                   children: [
-                    // Avatar
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      child: Text(
-                        (user?.fullName ?? 'U')[0].toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                    _ActionTile(
+                      icon: Icons.lock_outline,
+                      title: 'Ubah Password',
+                      textColor: textColor,
+                      primaryColor: primaryColor,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ChangePasswordScreen(isForced: false),
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(height: 14),
-                    Text(
-                      user?.fullName ?? 'User',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        user?.role ?? 'EMPLOYEE',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                    Divider(height: 1, color: borderColor, indent: 64, endIndent: 20),
+                    _ActionTile(
+                      icon: Icons.security_outlined,
+                      title: 'Pengaturan MFA',
+                      textColor: textColor,
+                      primaryColor: primaryColor,
+                      onTap: () {},
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
+              const SizedBox(height: 32),
 
-          // Info Cards
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _InfoTile(
-                  icon: Icons.badge_outlined,
-                  label: 'NIP',
-                  value: user?.nip ?? '-',
+              // Preferensi
+              Text(
+                'Preferensi',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: subtitleColor,
                 ),
-                _InfoTile(
-                  icon: Icons.person_outline,
-                  label: 'Nama Lengkap',
-                  value: user?.fullName ?? '-',
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: borderColor),
+                  boxShadow: isDark
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
                 ),
-                _InfoTile(
-                  icon: Icons.business_outlined,
-                  label: 'Divisi',
-                  value: user?.divisionName ?? 'Divisi ${user?.divisionId ?? '-'}',
-                ),
-                _InfoTile(
-                  icon: Icons.shield_outlined,
-                  label: 'Role',
-                  value: user?.role ?? '-',
-                ),
-
-                const SizedBox(height: 12),
-
-                // Dark Mode Toggle
-                Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, child) {
-                    return Card(
-                      elevation: 0.5,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      child: SwitchListTile(
-                        title: const Text('Dark Mode', style: TextStyle(fontWeight: FontWeight.w600)),
-                        secondary: Icon(
-                          themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 22,
-                        ),
-                        value: themeProvider.isDarkMode,
-                        onChanged: (value) {
-                          themeProvider.toggleTheme(value);
-                        },
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 24),
-
-                // Change Password Button
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            const ChangePasswordScreen(isForced: false),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.lock_reset_rounded),
-                  label: const Text('Ganti Password'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                child: Column(
+                  children: [
+                    _ToggleTile(
+                      icon: Icons.notifications_none_outlined,
+                      title: 'Notifikasi Pelatihan',
+                      value: true,
+                      textColor: textColor,
+                      primaryColor: primaryColor,
+                      onChanged: (val) {},
                     ),
-                  ),
+                    Divider(height: 1, color: borderColor, indent: 64, endIndent: 20),
+                    _ToggleTile(
+                      icon: Icons.dark_mode_outlined,
+                      title: 'Mode Tampilan',
+                      value: isDark,
+                      textColor: textColor,
+                      primaryColor: primaryColor,
+                      onChanged: (val) {
+                        themeProvider.toggleTheme(val);
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
+              ),
+              const SizedBox(height: 40),
 
-                // Logout Button
-                FilledButton.icon(
+              // Logout
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
                   onPressed: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
@@ -173,8 +221,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () => Navigator.of(ctx).pop(true),
-                            child: const Text('Logout',
-                                style: TextStyle(color: Colors.red)),
+                            child: const Text('Logout', style: TextStyle(color: Colors.red)),
                           ),
                         ],
                       ),
@@ -183,67 +230,122 @@ class ProfileScreen extends StatelessWidget {
                       await auth.logout();
                     }
                   },
-                  icon: const Icon(Icons.logout_rounded),
-                  label: const Text('Logout'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                  icon: const Icon(Icons.logout_rounded, color: Colors.red, size: 24),
+                  label: const Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    side: BorderSide(color: Colors.red.shade100, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    backgroundColor: isDark ? Colors.red.withValues(alpha: 0.1) : Colors.white,
+                  ),
                 ),
-              ]),
-            ),
+              ),
+              const SizedBox(height: 40),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _InfoTile extends StatelessWidget {
+class _ActionTile extends StatelessWidget {
   final IconData icon;
-  final String label;
-  final String value;
+  final String title;
+  final Color textColor;
+  final Color primaryColor;
+  final VoidCallback onTap;
 
-  const _InfoTile({
+  const _ActionTile({
     required this.icon,
-    required this.label,
+    required this.title,
+    required this.textColor,
+    required this.primaryColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Row(
+          children: [
+            Icon(icon, color: primaryColor, size: 26),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ToggleTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool value;
+  final Color textColor;
+  final Color primaryColor;
+  final ValueChanged<bool> onChanged;
+
+  const _ToggleTile({
+    required this.icon,
+    required this.title,
     required this.value,
+    required this.textColor,
+    required this.primaryColor,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Card(
-        elevation: 0.5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(icon, color: Theme.of(context).colorScheme.primary, size: 22),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ],
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: primaryColor, size: 26),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: textColor,
               ),
-            ],
+            ),
           ),
-        ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: Colors.white,
+            activeTrackColor: primaryColor,
+            inactiveThumbColor: Colors.grey.shade400,
+            inactiveTrackColor: Colors.grey.shade200,
+          ),
+        ],
       ),
     );
   }
