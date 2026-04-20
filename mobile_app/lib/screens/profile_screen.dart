@@ -102,7 +102,7 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.business_outlined,
                   label: 'Divisi',
                   value: user?.divisionName ?? 'Divisi ${user?.divisionId ?? '-'}',
-                ),b
+                ),
                 _InfoTile(
                   icon: Icons.shield_outlined,
                   label: 'Role',
