@@ -1,11 +1,41 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import 'change_password_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _pickAndUploadImage(BuildContext context, AuthProvider auth) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      imageQuality: 80,
+    );
+
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      try {
+        await auth.uploadAvatar(file);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Foto profil berhasil diperbarui!')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal mengunggah foto: $e')),
+          );
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,14 +91,41 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: primaryLight,
-                        shape: BoxShape.circle,
+                    GestureDetector(
+                      onTap: () => _pickAndUploadImage(context, auth),
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: primaryLight,
+                              shape: BoxShape.circle,
+                            ),
+                            clipBehavior: Clip.hardEdge,
+                            child: auth.isLoading
+                                ? const Center(child: CircularProgressIndicator())
+                                : user?.avatarUrl != null
+                                    ? CachedNetworkImage(
+                                        imageUrl: user!.avatarUrl!,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) => Icon(Icons.person, color: primaryColor, size: 36),
+                                      )
+                                    : Icon(Icons.person, color: primaryColor, size: 36),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: cardColor, width: 2),
+                            ),
+                            child: const Icon(Icons.camera_alt, color: Colors.white, size: 12),
+                          ),
+                        ],
                       ),
-                      child: Icon(Icons.person, color: primaryColor, size: 32),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
@@ -94,7 +151,10 @@ class ProfileScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Icon(Icons.edit, color: primaryColor, size: 24),
+                    IconButton(
+                      icon: Icon(Icons.edit, color: primaryColor, size: 24),
+                      onPressed: () => _pickAndUploadImage(context, auth),
+                    ),
                   ],
                 ),
               ),
@@ -250,7 +310,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 100),
             ],
           ),
         ),

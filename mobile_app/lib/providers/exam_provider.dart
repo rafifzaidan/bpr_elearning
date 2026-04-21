@@ -48,18 +48,26 @@ class ExamProvider with ChangeNotifier {
         .listen((data) async {
           final userId = _supabase.auth.currentUser?.id;
 
-          // Fetch related modules to populate moduleTitle
+          // Fetch related modules to populate moduleTitle and divisionName
           final Set<int> moduleIds = data.map((e) => e['module_id'] as int).toSet();
-          final Map<int, String> moduleTitles = {};
+          final Map<int, Map<String, String>> moduleDetails = {};
           
           if (moduleIds.isNotEmpty) {
             final modulesData = await _supabase
                 .from('modules')
-                .select('id, title')
+                .select('id, title, division:divisions(name)')
                 .inFilter('id', moduleIds.toList());
                 
             for (var m in modulesData) {
-               moduleTitles[m['id'] as int] = m['title'] as String;
+               final title = m['title'] as String;
+               String divName = 'Umum';
+               if (m['division'] != null && m['division'] is Map) {
+                   divName = m['division']['name'] as String;
+               }
+               moduleDetails[m['id'] as int] = {
+                 'title': title,
+                 'divisionName': divName,
+               };
             }
           }
 
@@ -78,9 +86,12 @@ class ExamProvider with ChangeNotifier {
 
           _exams = data.map((json) {
             json['has_result'] = completedExamIds.contains(json['id']);
-            // Manually inject moduleTitle from our separate query due to stream limitations
-            if (moduleTitles.containsKey(json['module_id'])) {
-               json['module'] = {'title': moduleTitles[json['module_id']]};
+            // Manually inject moduleTitle and divisionName
+            if (moduleDetails.containsKey(json['module_id'])) {
+               json['module'] = {
+                 'title': moduleDetails[json['module_id']]!['title'],
+                 'division': { 'name': moduleDetails[json['module_id']]!['divisionName'] }
+               };
             }
             return Exam.fromJson(json);
           }).toList();

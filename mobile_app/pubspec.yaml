@@ -50,6 +50,8 @@ dependencies:
   intl: ^0.20.1                   # Format tanggal/waktu
   syncfusion_flutter_pdfviewer: ^31.1.19
   google_fonts: ^6.2.1
+  image_picker: ^1.2.1
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:

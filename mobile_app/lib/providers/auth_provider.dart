@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supa;
@@ -155,7 +156,12 @@ class AuthProvider with ChangeNotifier {
           });
 
       debugPrint('DEBUG: Profile Data Received: $data');
-      _user = User.fromJson(data);
+      
+      // Ambil avatarUrl dari userMetadata
+      final authUser = _supabase.auth.currentUser;
+      final avatarUrl = authUser?.userMetadata?['avatar_url'] as String?;
+
+      _user = User.fromJson(data, authAvatarUrl: avatarUrl);
       _needsPasswordChange = _user!.mustChangePw;
 
       // Cache locally
@@ -233,6 +239,7 @@ class AuthProvider with ChangeNotifier {
         role: _user!.role,
         mfaEnabled: _user!.mfaEnabled,
         mustChangePw: false,
+        avatarUrl: _user!.avatarUrl,
       );
 
       final prefs = await SharedPreferences.getInstance();
@@ -286,7 +293,9 @@ class AuthProvider with ChangeNotifier {
       final userData = prefs.getString('user');
 
       if (userData != null) {
-        _user = User.fromJson(jsonDecode(userData));
+        final decoded = jsonDecode(userData);
+        // Fallback: Use avatarUrl from cache directly if fromJson doesn't handle it
+        _user = User.fromJson(decoded, authAvatarUrl: decoded['avatar_url']);
         _needsPasswordChange = _user!.mustChangePw;
       }
     }
@@ -307,5 +316,58 @@ class AuthProvider with ChangeNotifier {
     );
     _needsPasswordChange = false;
     notifyListeners();
+  }
+
+  /// Unggah foto profil ke Supabase Storage dan perbarui metadata
+  Future<void> uploadAvatar(File imageFile) async {
+    if (_user == null) return;
+    
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final userId = _user!.id;
+      final fileExt = imageFile.path.split('.').last;
+      final fileName = '$userId.${DateTime.now().millisecondsSinceEpoch}.$fileExt'; // Unique name
+      final filePath = 'avatars/$fileName';
+
+      // 1. Upload ke bucket 'modules' (atau buat bucket baru 'avatars' jika perlu)
+      await _supabase.storage.from('modules').upload(
+        filePath,
+        imageFile,
+        fileOptions: const supa.FileOptions(cacheControl: '3600', upsert: true),
+      );
+
+      // 2. Dapatkan public URL
+      final publicUrl = _supabase.storage.from('modules').getPublicUrl(filePath);
+
+      // 3. Update auth metadata
+      await _supabase.auth.updateUser(
+        supa.UserAttributes(data: {'avatar_url': publicUrl}),
+      );
+
+      // 4. Update local state
+      _user = User(
+        id: _user!.id,
+        nip: _user!.nip,
+        fullName: _user!.fullName,
+        divisionId: _user!.divisionId,
+        divisionName: _user!.divisionName,
+        role: _user!.role,
+        mfaEnabled: _user!.mfaEnabled,
+        mustChangePw: _user!.mustChangePw,
+        avatarUrl: publicUrl,
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user', jsonEncode(_user!.toJson()));
+
+    } catch (e) {
+      debugPrint('Error uploading avatar: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

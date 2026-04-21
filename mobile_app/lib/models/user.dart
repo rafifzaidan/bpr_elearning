@@ -7,6 +7,7 @@ class User {
   final String role; // EMPLOYEE | ADMIN | LEADER
   final bool mfaEnabled;
   final bool mustChangePw;
+  final String? avatarUrl;
 
   User({
     required this.id,
@@ -17,9 +18,10 @@ class User {
     required this.role,
     this.mfaEnabled = false,
     this.mustChangePw = true,
+    this.avatarUrl,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  factory User.fromJson(Map<String, dynamic> json, {String? authAvatarUrl}) {
     // Handle joined division data if present
     String? divName;
     if (json['division'] != null && json['division'] is Map) {
@@ -35,6 +37,7 @@ class User {
       role: json['role'] ?? 'EMPLOYEE',
       mfaEnabled: json['mfa_enabled'] ?? false,
       mustChangePw: json['must_change_pw'] ?? true,
+      avatarUrl: authAvatarUrl, // Prioritaskan dari auth metadata jika diteruskan
     );
   }
 
@@ -48,6 +51,7 @@ class User {
       'role': role,
       'mfa_enabled': mfaEnabled,
       'must_change_pw': mustChangePw,
+      'avatar_url': avatarUrl, // Simpan ke lokal cache
     };
   }
 }

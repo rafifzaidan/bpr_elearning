@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/auth_provider.dart';
 import '../providers/exam_provider.dart';
 import '../providers/module_provider.dart';
@@ -49,14 +50,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   IconData _getIconForModule(String title) {
     final lowerTitle = title.toLowerCase();
-    if (lowerTitle.contains('pengenalan') || lowerTitle.contains('intro')) {
-      return Icons.info_outline;
-    } else if (lowerTitle.contains('elektronik') || lowerTitle.contains('electronic')) {
-      return Icons.electrical_services;
-    } else if (lowerTitle.contains('office') || lowerTitle.contains('kantor')) {
-      return Icons.edit;
-    } else if (lowerTitle.contains('geo')) {
-      return Icons.public;
+    if (lowerTitle.contains('kredit') || lowerTitle.contains('pinjaman')) {
+      return Icons.payments_outlined;
+    } else if (lowerTitle.contains('operasional') || lowerTitle.contains('teller')) {
+      return Icons.account_balance_outlined;
+    } else if (lowerTitle.contains('kepatuhan') || lowerTitle.contains('risiko') || lowerTitle.contains('ojk')) {
+      return Icons.gavel_rounded;
+    } else if (lowerTitle.contains('it') || lowerTitle.contains('komputer')) {
+      return Icons.computer_rounded;
     }
     return Icons.menu_book_rounded;
   }
@@ -275,12 +276,25 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Riwayat Kuis',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00BFFF),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Riwayat Kuis',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
               InkWell(
                 onTap: () {
@@ -311,90 +325,92 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           )
         else
-          ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: results.length > 3 ? 3 : results.length, // Show top 3
-            itemBuilder: (context, index) {
-              final result = results[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => QuizReviewScreen(result: result),
-                    ),
-                  );
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+          SizedBox(
+            height: 215, // Ketinggian untuk menampilkan sekitar 2.5 item
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              physics: const BouncingScrollPhysics(),
+              itemCount: results.length,
+              itemBuilder: (context, index) {
+                final result = results[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => QuizReviewScreen(result: result),
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: (result.isPassed ?? false) ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                        child: Icon(
-                        (result.isPassed ?? false) ? Icons.emoji_events : Icons.cancel,
-                        color: (result.isPassed ?? false) ? Colors.green : Colors.red,
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            result.examTitle ?? 'Kuis',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: (result.isPassed ?? false) ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            result.moduleTitle ?? '-',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Icon(
+                            (result.isPassed ?? false) ? Icons.emoji_events : Icons.cancel,
+                            color: (result.isPassed ?? false) ? Colors.green : Colors.red,
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                result.examTitle ?? 'Kuis',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                result.moduleTitle ?? '-',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '${result.score.toStringAsFixed(0)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: (result.isPassed ?? false) ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '${result.score.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: (result.isPassed ?? false) ? Colors.green : Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+                  ),
+                );
+              },
+            ),
           ),
       ],
     );
@@ -414,12 +430,25 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Saran Kursus',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Saran Kursus',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -434,105 +463,107 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           )
         else
-          ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: suggestedExams.length,
-            itemBuilder: (context, index) {
-              final exam = suggestedExams[index];
-              final deadlineText = exam.isActive
-                  ? 'Tenggat: ${exam.endDate.toLocal().day} ${_monthName(exam.endDate.toLocal().month)} ${exam.endDate.toLocal().year}'
-                  : 'Mulai: ${exam.startDate.toLocal().day} ${_monthName(exam.startDate.toLocal().month)} ${exam.startDate.toLocal().year}';
-              return GestureDetector(
-                onTap: () {
-                  _navigateToModule(context, exam);
-                },
-                child: Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (exam.moduleTitle != null)
+          SizedBox(
+            height: 135, // Ketinggian untuk menampilkan sekitar 1.3 item
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              physics: const BouncingScrollPhysics(),
+              itemCount: suggestedExams.length,
+              itemBuilder: (context, index) {
+                final exam = suggestedExams[index];
+                final deadlineText = exam.isActive
+                    ? 'Tenggat: ${exam.endDate.toLocal().day} ${_monthName(exam.endDate.toLocal().month)} ${exam.endDate.toLocal().year}'
+                    : 'Mulai: ${exam.startDate.toLocal().day} ${_monthName(exam.startDate.toLocal().month)} ${exam.startDate.toLocal().year}';
+                return GestureDetector(
+                  onTap: () {
+                    _navigateToModule(context, exam);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (exam.moduleTitle != null)
+                                Text(
+                                  exam.moduleTitle!,
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              const SizedBox(height: 4),
                               Text(
-                                exam.moduleTitle!,
-                                style: TextStyle(
-                                  color: Colors.grey[500],
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
+                                exam.title,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            const SizedBox(height: 4),
-                            Text(
-                              exam.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Icon(Icons.calendar_today_rounded,
-                                    size: 11, color: Colors.grey[400]),
-                                const SizedBox(width: 4),
-                                Text(
-                                  deadlineText,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey[500],
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Icon(Icons.calendar_today_rounded,
+                                      size: 11, color: Colors.grey[400]),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    deadlineText,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[500],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        exam.isActive ? 'Kerjakan\nSekarang' : 'Lihat\nMateri',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
+                        const SizedBox(width: 12),
+                        Text(
+                          exam.isActive ? 'Kerjakan\nSekarang' : 'Lihat\nMateri',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: exam.isActive
+                                ? const Color(0xFF0284C7)
+                                : Colors.orange,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 14,
                           color: exam.isActive
                               ? const Color(0xFF0284C7)
                               : Colors.orange,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                        color: exam.isActive
-                            ? const Color(0xFF0284C7)
-                            : Colors.orange,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
       ],
     );
@@ -596,18 +627,45 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: primaryBlue.withValues(alpha: 0.1),
-                    child: Text(
-                      (user?.fullName ?? 'P')[0].toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: primaryBlue,
-                      ),
-                    ),
-                  ),
+                  user?.avatarUrl != null
+                      ? Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: primaryBlue.withValues(alpha: 0.2), width: 2),
+                          ),
+                          clipBehavior: Clip.hardEdge,
+                          child: CachedNetworkImage(
+                            imageUrl: user!.avatarUrl!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                              radius: 28,
+                              backgroundColor: primaryBlue.withValues(alpha: 0.1),
+                              child: Text(
+                                (user.fullName.isNotEmpty ? user.fullName[0] : 'P').toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryBlue,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 28,
+                          backgroundColor: primaryBlue.withValues(alpha: 0.1),
+                          child: Text(
+                            (user?.fullName != null && user!.fullName.isNotEmpty ? user.fullName[0] : 'P').toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: primaryBlue,
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),
@@ -624,17 +682,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           // 2. Stats Section
                           _buildStatsSection(context),
                           
-                          const SizedBox(height: 32),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                            child: Divider(height: 1, thickness: 1, color: Color(0x1A000000)),
+                          ),
                           
                           // 3. Quiz History Section
                           _buildQuizHistorySection(context),
 
-                          const SizedBox(height: 32),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                            child: Divider(height: 1, thickness: 1, color: Color(0x1A000000)),
+                          ),
                           
                           // 4. Saran Kursus (Suggested Courses)
                           _buildSuggestedCoursesSection(context),
 
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 100),
                         ],
                       ),
                     ),

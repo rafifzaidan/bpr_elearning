@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/exam_provider.dart';
+import '../providers/module_provider.dart';
 import '../models/exam.dart';
+import '../models/result.dart';
 import 'exam_screen.dart';
+import 'quiz_review_screen.dart';
 
 class ExamListScreen extends StatefulWidget {
   const ExamListScreen({super.key});
@@ -15,40 +18,45 @@ class ExamListScreen extends StatefulWidget {
 class _ExamListScreenState extends State<ExamListScreen> {
   String searchQuery = '';
   String selectedCategory = 'Semua';
-  final List<String> _filters = ['Semua', 'Regulasi', 'Soft Skill', 'IT & Security'];
 
   String getCategoryForExam(Exam exam) {
-    // Generate kategori dinamis namun konsisten berbasis konten atau fallback via ID
-    final text = (exam.title + (exam.moduleTitle ?? '')).toLowerCase();
-    if (text.contains('it') || text.contains('security') || text.contains('teknologi')) return 'IT & Security';
-    if (text.contains('regulasi') || text.contains('hukum') || text.contains('patuh')) return 'Regulasi';
-    if (text.contains('soft') || text.contains('komunikasi') || text.contains('layanan')) return 'Soft Skill';
-    
-    // Fallback assignment agar setiap course dpt masuk salah satu tab dari db asli
-    final index = exam.id % 3;
-    return ['Regulasi', 'Soft Skill', 'IT & Security'][index];
-  }
-
-  List<Exam> get filteredCourses {
-    // ExamProvider is not accessible as class field, so we compute in build.
-    // This getter is intentionally empty; see _buildFilteredCourses() instead.
-    return [];
+    return exam.moduleTitle ?? 'Lainnya';
   }
 
   @override
   void initState() {
     super.initState();
     final examProv = Provider.of<ExamProvider>(context, listen: false);
-    Future.microtask(() => examProv.initStreams());
+    final moduleProv = Provider.of<ModuleProvider>(context, listen: false);
+    Future.microtask(() {
+      examProv.initStreams();
+      moduleProv.initModuleStream();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final examProv = Provider.of<ExamProvider>(context);
+    final moduleProv = Provider.of<ModuleProvider>(context);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colorScheme = theme.colorScheme;
-    final dateFormat = DateFormat('dd MMM yyyy, HH:mm');
+    final dateFormat = DateFormat('dd MMM yyyy');
+
+    // Extract dynamic modules from the modules table (via provider)
+    // This ensures all modules from the web admin appear, even if they have no exams yet
+    final dynamicModules = moduleProv.modules
+        .map((m) => m.title)
+        .toSet()
+        .toList();
+    dynamicModules.sort(); 
+    
+    final List<String> filters = ['Semua', ...dynamicModules];
+
+    // Ensure selectedCategory is still valid, else reset to 'Semua'
+    if (!filters.contains(selectedCategory)) {
+       selectedCategory = 'Semua';
+    }
 
     final filteredExams = examProv.exams.where((exam) {
       final matchesSearch = exam.title.toLowerCase().contains(searchQuery.toLowerCase());
@@ -70,13 +78,15 @@ class _ExamListScreenState extends State<ExamListScreen> {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new, size: 22),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const SizedBox(width: 12),
+                      if (Navigator.canPop(context)) ...[
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                        const SizedBox(width: 16),
+                      ],
                       const Text(
                         'Daftar Pelatihan',
                         style: TextStyle(
@@ -125,9 +135,9 @@ class _ExamListScreenState extends State<ExamListScreen> {
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 scrollDirection: Axis.horizontal,
-                itemCount: _filters.length,
+                itemCount: filters.length,
                 itemBuilder: (context, index) {
-                  final namaKategori = _filters[index];
+                  final namaKategori = filters[index];
                   final isActive = selectedCategory == namaKategori;
                   return GestureDetector(
                     onTap: () {
@@ -149,7 +159,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        _filters[index],
+                        filters[index],
                         style: TextStyle(
                           color: isActive ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
                           fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
@@ -174,42 +184,88 @@ class _ExamListScreenState extends State<ExamListScreen> {
                           ),
                         )
                       : GridView.builder(
-                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.75, // Adjust for top/bottom inner split
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 1.2, // Back to previous ratio
                           ),
                           itemCount: filteredExams.length,
                           itemBuilder: (context, index) {
                             final exam = filteredExams[index];
-                            final categoryName = getCategoryForExam(exam);
-                            final levelTags = [
-                              {'label': 'Pemula', 'color': Colors.green},
-                              {'label': 'Menengah', 'color': Colors.blue},
-                              {'label': 'Lanjutan', 'color': Colors.purple},
-                            ];
-                            // Memilih tag acak/berbasis ID supaya visual tag konsisten
-                            final tag = levelTags[exam.id % levelTags.length];
                             final canTakeExam = exam.isActive && exam.hasResult != true;
+                            
+                            // Determine status and color
+                            String statusText = '';
+                            Color statusColor = Colors.grey;
+                            String dynamicDateText = '';
+                            
+                            if (exam.hasResult == true) {
+                              statusText = 'SELESAI';
+                              statusColor = Colors.green;
+                              // Find matching result to get completion date
+                              final matchingResult = examProv.results.firstWhere(
+                                (r) => r.examId == exam.id,
+                                orElse: () => Result(id: 0, userId: '', examId: 0, score: 0.0, finishedAt: DateTime.now()),
+                              );
+                              dynamicDateText = 'Selesai: ${dateFormat.format(matchingResult.finishedAt.toLocal())}';
+                            } else if (exam.isActive) {
+                              statusText = 'BERJALAN';
+                              statusColor = theme.primaryColor;
+                              dynamicDateText = 'Batas: ${dateFormat.format(exam.endDate.toLocal())}';
+                            } else if (exam.isUpcoming) {
+                              statusText = 'MENDATANG';
+                              statusColor = Colors.orange;
+                              dynamicDateText = 'Mulai: ${dateFormat.format(exam.startDate.toLocal())}';
+                            } else {
+                              statusText = 'BERAKHIR';
+                              statusColor = Colors.red;
+                              dynamicDateText = 'Berakhir: ${dateFormat.format(exam.endDate.toLocal())}';
+                            }
 
                             return Card(
                               elevation: 0,
                               color: Colors.transparent,
                               margin: EdgeInsets.zero,
                               child: InkWell(
-                                onTap: canTakeExam 
-                                  ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => ExamScreen(exam: exam)))
-                                  : null,
-                                borderRadius: BorderRadius.circular(20),
+                                onTap: () {
+                                  if (exam.hasResult == true) {
+                                    final matchingResult = examProv.results.firstWhere(
+                                      (r) => r.examId == exam.id,
+                                      orElse: () => Result(id: 0, userId: '', examId: 0, score: 0.0, finishedAt: DateTime.now()),
+                                    );
+                                    if (matchingResult.id != 0) {
+                                      Navigator.push(context, MaterialPageRoute(builder: (_) => QuizReviewScreen(result: matchingResult)));
+                                    }
+                                  } else if (exam.isActive) {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => ExamScreen(exam: exam)));
+                                  } else if (exam.isUpcoming) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Pelatihan "${exam.title}" belum dimulai.'),
+                                        backgroundColor: Colors.orange,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  } else if (exam.isExpired) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Pelatihan "${exam.title}" sudah berakhir.'),
+                                        backgroundColor: Colors.red,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(16),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: theme.cardTheme.color,
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(16),
                                     border: Border.all(color: isDark ? Colors.grey[800]! : Colors.grey.shade200),
                                     boxShadow: isDark ? [] : [
-                                      BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))
+                                      BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))
                                     ],
                                   ),
                                   child: Column(
@@ -217,55 +273,78 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                     children: [
                                       // Inner-Top Gradient Container
                                       Expanded(
-                                        flex: 4,
+                                        flex: 3, // Reverted to previous size
                                         child: Container(
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                               colors: [
-                                                theme.primaryColor.withOpacity(0.3),
-                                                theme.primaryColor.withOpacity(0.05),
+                                                statusColor.withOpacity(0.2),
+                                                statusColor.withOpacity(0.02),
                                               ],
                                             ),
                                             borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              topRight: Radius.circular(20),
+                                              topLeft: Radius.circular(16),
+                                              topRight: Radius.circular(16),
                                             ),
                                           ),
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.school_rounded,
-                                              size: 48,
-                                              color: theme.primaryColor,
-                                            ),
+                                          child: Stack(
+                                            children: [
+                                              Center(
+                                                child: Icon(
+                                                  exam.hasResult == true ? Icons.check_circle_rounded : Icons.school_rounded,
+                                                  size: 32, // Reverted to previous size
+                                                  color: statusColor,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 8,
+                                                right: 8,
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: statusColor,
+                                                    borderRadius: BorderRadius.circular(6),
+                                                  ),
+                                                  child: Text(
+                                                    statusText,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 8,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
                                       // Inner-Bottom Content Container
                                       Expanded(
-                                        flex: 6,
+                                        flex: 7, // Reverted to previous size
                                         child: Padding(
-                                          padding: const EdgeInsets.all(12),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                 decoration: BoxDecoration(
-                                                  color: (tag['color'] as Color).withOpacity(0.1),
-                                                  borderRadius: BorderRadius.circular(12),
+                                                  color: theme.primaryColor.withOpacity(0.1),
+                                                  borderRadius: BorderRadius.circular(8),
                                                 ),
                                                 child: Text(
-                                                  tag['label'] as String,
+                                                  exam.moduleTitle ?? 'Umum',
                                                   style: TextStyle(
-                                                    color: tag['color'] as Color,
+                                                    color: theme.primaryColor,
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                               ),
+                                              const SizedBox(height: 6),
                                               Text(
                                                 exam.title,
                                                 maxLines: 2,
@@ -276,15 +355,16 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                                   height: 1.2,
                                                 ),
                                               ),
+                                              const Spacer(),
                                               Row(
                                                 children: [
-                                                  Icon(Icons.schedule, size: 12, color: Colors.grey[500]),
+                                                  Icon(Icons.schedule, size: 10, color: Colors.grey[500]),
                                                   const SizedBox(width: 4),
                                                   Expanded(
                                                     child: Text(
-                                                      exam.isActive ? 'Sedang Berjalan' : 'Tenggat Waktu',
+                                                      dynamicDateText,
                                                       style: TextStyle(
-                                                        fontSize: 10,
+                                                        fontSize: 9,
                                                         color: Colors.grey[500],
                                                       ),
                                                       maxLines: 1,

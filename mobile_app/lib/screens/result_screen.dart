@@ -181,7 +181,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           ),
                         )
                       : GridView.builder(
-                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             crossAxisSpacing: 16,
@@ -269,6 +269,17 @@ class _ResultScreenState extends State<ResultScreen> {
                                                   ),
                                                 ),
                                               ),
+                                              if (result.moduleTitle != null)
+                                                Text(
+                                                  result.moduleTitle!,
+                                                  style: TextStyle(
+                                                    color: theme.primaryColor,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
                                               Text(
                                                 result.examTitle ?? 'Pelatihan',
                                                 maxLines: 2,

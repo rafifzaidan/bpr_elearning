@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../models/exam.dart';
 import '../models/question.dart';
 import '../providers/exam_provider.dart';
+import '../providers/module_provider.dart';
+import 'pdf_viewer_screen.dart';
 
 class ExamScreen extends StatefulWidget {
   final Exam exam;
@@ -19,20 +21,48 @@ class _ExamScreenState extends State<ExamScreen> {
   int _currentIndex = 0;
   bool _isSubmitting = false;
   bool _isLoaded = false;
+  bool _quizStarted = false;
+  dynamic _module; // Store the associated module
 
   // Timer
-  late Timer _timer;
-  late Duration _remaining;
+  Timer? _timer;
+  Duration _remaining = Duration.zero;
 
   @override
   void initState() {
     super.initState();
 
-    // Calculate remaining time until exam ends
+    final moduleProv = Provider.of<ModuleProvider>(context, listen: false);
+    final examProv = Provider.of<ExamProvider>(context, listen: false);
+
+    // Find the module
+    try {
+      _module = moduleProv.modules.firstWhere((m) => m.id == widget.exam.moduleId);
+    } catch (_) {
+      _module = null;
+    }
+
+    // Calculate remaining time
     _remaining = widget.exam.endDate.difference(DateTime.now());
     if (_remaining.isNegative) _remaining = Duration.zero;
 
+    // Load questions
+    Future.microtask(() async {
+      await examProv.fetchQuestions(widget.exam.moduleId);
+      if (mounted) setState(() => _isLoaded = true);
+    });
+  }
+
+  void _startQuiz() {
+    setState(() {
+      _quizStarted = true;
+    });
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       setState(() {
         _remaining = widget.exam.endDate.difference(DateTime.now());
         if (_remaining.isNegative) {
@@ -42,18 +72,11 @@ class _ExamScreenState extends State<ExamScreen> {
         }
       });
     });
-
-    // Load questions
-    final examProv = Provider.of<ExamProvider>(context, listen: false);
-    Future.microtask(() async {
-      await examProv.fetchQuestions(widget.exam.moduleId);
-      if (mounted) setState(() => _isLoaded = true);
-    });
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -80,7 +103,7 @@ class _ExamScreenState extends State<ExamScreen> {
       final score =
           await examProv.submitExam(widget.exam.id, _answers);
 
-      _timer.cancel();
+      _timer?.cancel();
 
       if (mounted) {
         // Show result dialog
@@ -158,9 +181,9 @@ class _ExamScreenState extends State<ExamScreen> {
     final isTimeLow = _remaining.inMinutes < 5 && _remaining.inSeconds > 0;
 
     return PopScope(
-      canPop: false,
+      canPop: !_quizStarted, // Allow pop if quiz hasn't started
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
+        if (!didPop && _quizStarted) {
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
@@ -187,44 +210,46 @@ class _ExamScreenState extends State<ExamScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.exam.title),
+          title: Text(_quizStarted ? widget.exam.title : 'Persiapan Ujian'),
           centerTitle: true,
-          // Removed automaticallyImplyLeading: false to allow back button
           actions: [
-            // Timer badge
-            Container(
-              margin: const EdgeInsets.only(right: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isTimeLow
-                    ? Colors.red.withValues(alpha: 0.15)
-                    : colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.timer_outlined,
-                      size: 16,
-                      color: isTimeLow ? Colors.red : colorScheme.primary),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatDuration(_remaining),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isTimeLow ? Colors.red : colorScheme.primary,
+            if (_quizStarted)
+              // Timer badge
+              Container(
+                margin: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isTimeLow
+                      ? Colors.red.withValues(alpha: 0.15)
+                      : colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.timer_outlined,
+                        size: 16,
+                        color: isTimeLow ? Colors.red : colorScheme.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatDuration(_remaining),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isTimeLow ? Colors.red : colorScheme.primary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
           ],
         ),
         body: !_isLoaded || examProv.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : questions.isEmpty
-                ? const Center(child: Text('Tidak ada soal untuk ujian ini'))
-                : Column(
+            : !_quizStarted 
+                ? _buildPreparationView()
+                : questions.isEmpty
+                    ? const Center(child: Text('Tidak ada soal untuk ujian ini'))
+                    : Column(
                     children: [
                       // Progress bar
                       LinearProgressIndicator(
@@ -322,6 +347,188 @@ class _ExamScreenState extends State<ExamScreen> {
                       ),
                     ],
                   ),
+      ),
+    );
+  }
+
+  Widget _buildPreparationView() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final moduleProv = Provider.of<ModuleProvider>(context, listen: false);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Module Info Card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colorScheme.primary,
+                  colorScheme.primary.withValues(alpha: 0.7),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.primary.withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.exam.title,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _module?.title ?? 'Modul Pelatihan',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // 2. Material Section
+          const Text(
+            'Materi Pelatihan',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          if (_module != null && _module!.fileUrl != null)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _module!.fileType == 'video' ? Icons.play_circle_fill : Icons.picture_as_pdf,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _module!.title,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            Text(
+                              'Silakan pelajari materi ini sebelum mengerjakan kuis.',
+                              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        // Import PDF Viewer screen logic or navigate
+                        final url = await moduleProv.getFileUrl(_module!.fileUrl!);
+                        if (url != null && mounted) {
+                          if (_module!.fileType == 'pdf') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PdfViewerScreen(url: url, title: _module!.title),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pemutar video belum tersedia')));
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.menu_book_rounded),
+                      label: const Text('Buka Materi Sekarang'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            const Text('Tidak ada materi khusus untuk pelatihan ini.'),
+
+          const SizedBox(height: 40),
+
+          // 3. Instruction Section
+          const Text(
+            'Instruksi Kuis',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          _buildInstructionItem(Icons.timer_outlined, 'Batas waktu pengerjaan sesuai jadwal.'),
+          _buildInstructionItem(Icons.help_outline, 'Jawab semua pertanyaan dengan teliti.'),
+          _buildInstructionItem(Icons.check_circle_outline, 'Minimal skor kelulusan adalah 75.'),
+
+          const SizedBox(height: 48),
+
+          // 4. Start Button
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _startQuiz,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                backgroundColor: colorScheme.primary,
+              ),
+              child: const Text(
+                'Mulai Kerjakan Soal',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInstructionItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.grey[600]),
+          const SizedBox(width: 12),
+          Text(text, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+        ],
       ),
     );
   }
