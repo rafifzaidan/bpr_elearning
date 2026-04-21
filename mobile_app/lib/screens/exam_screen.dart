@@ -189,7 +189,7 @@ class _ExamScreenState extends State<ExamScreen> {
         appBar: AppBar(
           title: Text(widget.exam.title),
           centerTitle: true,
-          automaticallyImplyLeading: false,
+          // Removed automaticallyImplyLeading: false to allow back button
           actions: [
             // Timer badge
             Container(

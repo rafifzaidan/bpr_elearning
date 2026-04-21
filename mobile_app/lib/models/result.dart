@@ -7,6 +7,7 @@ class Result {
   final DateTime finishedAt;
   final String? examTitle;
   final String? moduleTitle;
+  final Map<int, String>? userAnswers;
 
   Result({
     required this.id,
@@ -17,6 +18,7 @@ class Result {
     required this.finishedAt,
     this.examTitle,
     this.moduleTitle,
+    this.userAnswers,
   });
 
   factory Result.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,12 @@ class Result {
       }
     }
 
+    Map<int, String>? parsedUserAnswers;
+    if (json['user_answers'] != null) {
+      final answers = json['user_answers'] as Map<String, dynamic>;
+      parsedUserAnswers = answers.map((key, value) => MapEntry(int.parse(key), value.toString()));
+    }
+
     return Result(
       id: json['id'],
       userId: json['user_id'] ?? '',
@@ -38,6 +46,7 @@ class Result {
       finishedAt: DateTime.parse(json['finished_at'] ?? DateTime.now().toIso8601String()),
       examTitle: exTitle ?? json['exam_title'],
       moduleTitle: modTitle ?? json['module_title'],
+      userAnswers: parsedUserAnswers,
     );
   }
 }

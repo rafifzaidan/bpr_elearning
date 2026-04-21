@@ -32,7 +32,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
           // Header
           SliverToBoxAdapter(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+              padding: const EdgeInsets.fromLTRB(10, 20, 20, 24),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -49,12 +49,17 @@ class _ExamListScreenState extends State<ExamListScreen> {
                 bottom: false,
                 child: Row(
                   children: [
-                    Icon(Icons.quiz_rounded, color: Colors.white, size: 28),
-                    const SizedBox(width: 12),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                          color: Colors.white, size: 22),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    Icon(Icons.quiz_rounded, color: Colors.white, size: 24),
+                    const SizedBox(width: 10),
                     const Text(
                       'Ujian',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

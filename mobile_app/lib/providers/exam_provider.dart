@@ -150,6 +150,7 @@ class ExamProvider with ChangeNotifier {
           finishedAt: DateTime.now(),
           examTitle: exam.title,
           moduleTitle: exam.moduleTitle,
+          userAnswers: answers,
         ),
       );
       return score;
@@ -158,10 +159,13 @@ class ExamProvider with ChangeNotifier {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) throw Exception('Tidak terautentikasi');
 
+    final jsonAnswers = answers.map((k, v) => MapEntry(k.toString(), v));
+
     await _supabase.from('results').insert({
       'user_id': userId,
       'exam_id': examId,
       'score': score,
+      'user_answers': jsonAnswers,
     });
 
     // Streams are active, we don't need to manually fetch anymore

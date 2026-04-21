@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/exam_provider.dart';
 import '../providers/module_provider.dart';
+import '../models/exam.dart';
+import 'exam_screen.dart';
+import 'exam_list_screen.dart';
 import 'module_detail_screen.dart';
-
+import 'quiz_review_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -16,7 +20,31 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     final moduleProv = Provider.of<ModuleProvider>(context, listen: false);
-    Future.microtask(() => moduleProv.initModuleStream());
+    final examProv = Provider.of<ExamProvider>(context, listen: false);
+    Future.microtask(() {
+      moduleProv.initModuleStream();
+      examProv.initStreams();
+    });
+  }
+
+  void _navigateToModule(BuildContext context, Exam exam) {
+    final moduleProv = Provider.of<ModuleProvider>(context, listen: false);
+    final module = moduleProv.modules.cast<dynamic>().firstWhere(
+      (m) => m.id == exam.moduleId,
+      orElse: () => null,
+    );
+    if (module != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ModuleDetailScreen(module: module),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Modul tidak ditemukan.')),
+      );
+    }
   }
 
   IconData _getIconForModule(String title) {
@@ -33,11 +61,213 @@ class _HomeScreenState extends State<HomeScreen> {
     return Icons.menu_book_rounded;
   }
 
-  Widget _buildLearnedCoursesSection() {
-    final List<Map<String, dynamic>> learnedCourses = [
-      {"title": "Dasar-dasar Perbankan", "progress": "50% Selesai", "icon": Icons.account_balance},
-      {"title": "Manajemen Risiko", "progress": "80% Selesai", "icon": Icons.shield_outlined},
+  String _monthName(int month) {
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
     ];
+    return months[month];
+  }
+
+  Widget _buildStatsSection(BuildContext context) {
+    final examProv = Provider.of<ExamProvider>(context);
+    final results = examProv.results;
+    final exams = examProv.exams;
+
+    // Calculate Accuracy
+    double accuracy = 0.0;
+    if (results.isNotEmpty) {
+      double totalScore = results.fold(0, (sum, item) => sum + item.score);
+      accuracy = totalScore / results.length;
+    }
+
+    // Calculate Progress
+    int progress = 0;
+    if (exams.isNotEmpty) {
+      final completed = exams.where((e) => e.hasResult == true).length;
+      progress = ((completed / exams.length) * 100).round();
+    }
+
+    // Calculate Deadline
+    String deadlinePrefix = "TIDAK ADA TENGGAT";
+    String examTitle = "Semua Selesai!";
+    
+    final pendingExams = exams.where((e) => (e.isActive || e.isUpcoming) && e.hasResult != true).toList();
+    if (pendingExams.isNotEmpty) {
+      pendingExams.sort((a, b) => a.endDate.compareTo(b.endDate));
+      final nearest = pendingExams.first;
+      examTitle = nearest.title;
+      final diff = nearest.endDate.difference(DateTime.now());
+      if (diff.inDays > 0) {
+        deadlinePrefix = "TENGGAT ${diff.inDays} HARI LAGI - KUIS";
+      } else if (diff.inHours > 0) {
+        deadlinePrefix = "TENGGAT ${diff.inHours} JAM LAGI - KUIS";
+      } else {
+        deadlinePrefix = "TENGGAT HARI INI - KUIS";
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Deadline Card
+            Expanded(
+              flex: 11,
+              child: GestureDetector(
+                onTap: () {
+                  if (pendingExams.isNotEmpty) {
+                    _navigateToModule(context, pendingExams.first);
+                  }
+                },
+                child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.lightBlue.shade300, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.flash_on, color: Colors.black87, size: 24),
+                    const SizedBox(height: 12),
+                    Text(
+                      deadlinePrefix,
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      examTitle,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Colors.black87,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 16),
+                    if (pendingExams.isNotEmpty)
+                      const Text(
+                        "Kerjakan Sekarang",
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+            const SizedBox(width: 12),
+            // Circular Stats
+            Expanded(
+              flex: 9,
+              child: Row(
+                children: [
+                  _buildCircularStat(
+                    title: "Progres Belajar",
+                    percentage: progress.toDouble(),
+                    color: Colors.orange,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildCircularStat(
+                    title: "Akurasi",
+                    percentage: accuracy,
+                    color: Colors.blue.shade600,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCircularStat({required String title, required double percentage, required Color color}) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: CircularProgressIndicator(
+                    value: percentage / 100,
+                    backgroundColor: Colors.grey.shade100,
+                    color: color,
+                    strokeWidth: 5,
+                  ),
+                ),
+                Text(
+                  "${percentage.toStringAsFixed(0)}%",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 10,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuizHistorySection(BuildContext context) {
+    final examProv = Provider.of<ExamProvider>(context);
+    final results = examProv.results;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,69 +278,92 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Kursus Aktif',
+                'Riwayat Kuis',
                 style: TextStyle(
                   color: Colors.black87,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
-                'Lihat Semua',
-                style: TextStyle(
-                  color: Color(0xFF00BFFF),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ExamListScreen()),
+                  );
+                },
+                child: const Text(
+                  'View All',
+                  style: TextStyle(
+                    color: Color(0xFF00BFFF),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            scrollDirection: Axis.horizontal,
-            itemCount: learnedCourses.length,
+        if (results.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              'Belum ada riwayat kuis.',
+              style: TextStyle(color: Colors.grey),
+            ),
+          )
+        else
+          ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: results.length > 3 ? 3 : results.length, // Show top 3
             itemBuilder: (context, index) {
-              final course = learnedCourses[index];
-              return Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                margin: const EdgeInsets.only(right: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+              final result = results[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QuizReviewScreen(result: result),
                     ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0284C7).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      child: Icon(
-                        course['icon'] as IconData,
-                        color: const Color(0xFF0284C7),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: (result.isPassed ?? false) ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                        (result.isPassed ?? false) ? Icons.emoji_events : Icons.cancel,
+                        color: (result.isPassed ?? false) ? Colors.green : Colors.red,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            course['title'] as String,
+                            result.examTitle ?? 'Kuis',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -119,33 +372,43 @@ class _HomeScreenState extends State<HomeScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
-                            course['progress'] as String,
+                            result.moduleTitle ?? '-',
                             style: TextStyle(
                               color: Colors.grey[600],
-                              fontSize: 14,
+                              fontSize: 12,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    Text(
+                      '${result.score.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: (result.isPassed ?? false) ? Colors.green : Colors.red,
+                      ),
+                    ),
                   ],
                 ),
-              );
-            },
+              ),
+            );
+          },
           ),
-        ),
       ],
     );
   }
 
-  Widget _buildSuggestedCoursesSection() {
-    final List<Map<String, dynamic>> suggestedCourses = [
-      {"title": "Kepatuhan APU PPT", "duration": "3 Jam • 15 Kuis", "icon": Icons.menu_book},
-      {"title": "Service Excellence", "duration": "2 Jam • 10 Kuis", "icon": Icons.star_outline},
-      {"title": "Kredit Sindikasi", "duration": "4 Jam • 20 Kuis", "icon": Icons.handshake_outlined},
-    ];
+  Widget _buildSuggestedCoursesSection(BuildContext context) {
+    final examProv = Provider.of<ExamProvider>(context);
+    final suggestedExams = examProv.exams
+        .where((e) => !e.isExpired && e.hasResult != true)
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,95 +426,120 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
-                'Lihat Semua',
-                style: TextStyle(
-                  color: Color(0xFF00BFFF),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 180, // Height slightly taller/kotak
-          child: ListView.builder(
+        if (suggestedExams.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Text(
+              'Tidak ada kursus baru untuk saat ini.',
+              style: TextStyle(color: Colors.grey),
+            ),
+          )
+        else
+          ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            scrollDirection: Axis.horizontal,
-            itemCount: suggestedCourses.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: suggestedExams.length,
             itemBuilder: (context, index) {
-              final course = suggestedCourses[index];
-              return Container(
-                width: 160,
-                margin: const EdgeInsets.only(right: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      course['icon'] as IconData,
-                      color: const Color(0xFF0284C7),
-                      size: 32,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.verified, color: Colors.blue, size: 14),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            'Certificate Available',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
+              final exam = suggestedExams[index];
+              final deadlineText = exam.isActive
+                  ? 'Tenggat: ${exam.endDate.toLocal().day} ${_monthName(exam.endDate.toLocal().month)} ${exam.endDate.toLocal().year}'
+                  : 'Mulai: ${exam.startDate.toLocal().day} ${_monthName(exam.startDate.toLocal().month)} ${exam.startDate.toLocal().year}';
+              return GestureDetector(
+                onTap: () {
+                  _navigateToModule(context, exam);
+                },
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (exam.moduleTitle != null)
+                              Text(
+                                exam.moduleTitle!,
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            const SizedBox(height: 4),
+                            Text(
+                              exam.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(Icons.calendar_today_rounded,
+                                    size: 11, color: Colors.grey[400]),
+                                const SizedBox(width: 4),
+                                Text(
+                                  deadlineText,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Expanded(
-                      child: Text(
-                        course['title'] as String,
-                        style: const TextStyle(
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        exam.isActive ? 'Kerjakan\nSekarang' : 'Lihat\nMateri',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: exam.isActive
+                              ? const Color(0xFF0284C7)
+                              : Colors.orange,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: Colors.black87,
-                          height: 1.2,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      course['duration'] as String,
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                        fontSize: 12,
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: exam.isActive
+                            ? const Color(0xFF0284C7)
+                            : Colors.orange,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
           ),
-        ),
       ],
     );
   }
@@ -259,28 +547,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    final moduleProv = Provider.of<ModuleProvider>(context);
+    final examProv = Provider.of<ExamProvider>(context);
     final user = auth.user;
     
     // Warna biru primary
     const primaryBlue = Color(0xFF00BFFF); 
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            // 1. Header Area (Latar Belakang Putih)
+            // 1. Header Area
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
-                ),
-              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -288,7 +570,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Welcome,',
+                        'Halo,',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey,
@@ -296,26 +578,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        user?.fullName ?? 'Hafizh Geo',
+                        user?.fullName ?? 'Pengguna',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: primaryBlue,
+                          color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.label_important, size: 16, color: Colors.grey[600]),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Role: ${user?.divisionName ?? 'Akuntansi'}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[700],
-                            ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: primaryBlue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          user?.divisionName ?? 'Jurusan',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: primaryBlue,
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -323,7 +607,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     radius: 28,
                     backgroundColor: primaryBlue.withValues(alpha: 0.1),
                     child: Text(
-                      (user?.fullName ?? 'H')[0].toUpperCase(),
+                      (user?.fullName ?? 'P')[0].toUpperCase(),
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -337,117 +621,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Konten Utama yang bisa di Scroll
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 2. Isi Menu / Modules (GridView Lama)
-                    moduleProv.isLoading
-                        ? const Padding(
-                            padding: EdgeInsets.all(40.0),
-                            child: Center(child: CircularProgressIndicator(color: Colors.white)),
-                          )
-                        : moduleProv.modules.isEmpty
-                            ? const Padding(
-                                padding: EdgeInsets.all(40.0),
-                                child: Center(
-                                  child: Text(
-                                    'Belum ada materi divisi',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                ),
-                              )
-                            : GridView.builder(
-                                padding: const EdgeInsets.all(20),
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(), // Scroll mengikuti SingleChildScrollView header
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 0.85, 
-                                ),
-                                itemCount: moduleProv.modules.length,
-                                itemBuilder: (context, index) {
-                                  final module = moduleProv.modules[index];
-                                  final icon = _getIconForModule(module.title);
-                                  return InkWell( // Tap behavior
-                                    onTap: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Membuka menu: ${module.title}'),
-                                          duration: const Duration(seconds: 1),
-                                        ),
-                                      );
-                                    },
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.05),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          // Circular Icon 
-                                          Container(
-                                            padding: const EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                              color: primaryBlue.withValues(alpha: 0.1),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(icon, color: primaryBlue, size: 28),
-                                          ),
-                                          const Spacer(),
-                                          Text(
-                                            module.title,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              color: Colors.black87,
-                                              height: 1.2,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            module.description ?? 'Check our modules for ${module.title}...',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600],
-                                              height: 1.3,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+              child: examProv.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 2. Stats Section
+                          _buildStatsSection(context),
+                          
+                          const SizedBox(height: 32),
+                          
+                          // 3. Quiz History Section
+                          _buildQuizHistorySection(context),
 
-                    // 3. Section Baru: Kursus Aktif (Learned Courses)
-                    _buildLearnedCoursesSection(),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // 4. Section Baru: Saran Kursus (Suggested Courses)
-                    _buildSuggestedCoursesSection(),
+                          const SizedBox(height: 32),
+                          
+                          // 4. Saran Kursus (Suggested Courses)
+                          _buildSuggestedCoursesSection(context),
 
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),
@@ -455,5 +651,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-

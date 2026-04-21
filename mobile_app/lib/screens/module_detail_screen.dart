@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../models/module.dart';
 import '../providers/module_provider.dart';
+import '../providers/exam_provider.dart';
 import 'pdf_viewer_screen.dart';
+import 'exam_screen.dart';
 
 class ModuleDetailScreen extends StatelessWidget {
   final Module module;
@@ -166,9 +169,186 @@ class ModuleDetailScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
+            // Exam / Quiz Section
+            _buildExamSection(context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildExamSection(BuildContext context) {
+    final examProv = Provider.of<ExamProvider>(context);
+    final dateFormat = DateFormat('dd MMM yyyy, HH:mm');
+
+    // Filter exams that belong to this module
+    final moduleExams = examProv.exams
+        .where((e) => e.moduleId == module.id)
+        .toList();
+
+    if (moduleExams.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 32),
+        const Text(
+          'Kuis Tersedia',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        ...moduleExams.map((exam) {
+          // Determine status
+          Color statusColor;
+          String statusText;
+          IconData statusIcon;
+          bool canStart = false;
+
+          if (exam.hasResult == true) {
+            statusColor = Colors.grey;
+            statusText = 'Sudah Dikerjakan';
+            statusIcon = Icons.check_circle_rounded;
+          } else if (exam.isActive) {
+            statusColor = Colors.green;
+            statusText = 'Sedang Berlangsung';
+            statusIcon = Icons.play_circle_rounded;
+            canStart = true;
+          } else if (exam.isUpcoming) {
+            statusColor = Colors.orange;
+            statusText = 'Akan Datang';
+            statusIcon = Icons.schedule_rounded;
+          } else {
+            statusColor = Colors.red;
+            statusText = 'Berakhir';
+            statusIcon = Icons.cancel_rounded;
+          }
+
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title + Status Badge
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        exam.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(statusIcon, size: 14, color: statusColor),
+                          const SizedBox(width: 4),
+                          Text(
+                            statusText,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // Date range
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_rounded,
+                        size: 14, color: Colors.grey[500]),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        '${dateFormat.format(exam.startDate.toLocal())} — ${dateFormat.format(exam.endDate.toLocal())}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                // Action Button
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: canStart
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ExamScreen(exam: exam),
+                              ),
+                            );
+                          }
+                        : exam.isUpcoming
+                            ? () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Kuis ini belum dimulai. Jadwal mulai: ${dateFormat.format(exam.startDate.toLocal())}',
+                                    ),
+                                    backgroundColor: Colors.orange,
+                                  ),
+                                );
+                              }
+                            : null,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: canStart
+                          ? null
+                          : exam.isUpcoming
+                              ? Colors.orange.shade400
+                              : Colors.grey.shade400,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      canStart
+                          ? 'Mulai Kuis'
+                          : exam.hasResult == true
+                              ? 'Sudah Selesai'
+                              : exam.isUpcoming
+                                  ? 'Belum Dimulai'
+                                  : 'Kuis Berakhir',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
     );
   }
 }
