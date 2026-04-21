@@ -51,23 +51,52 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Review Jawaban'),
-        centerTitle: true,
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new, size: 22),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Review Jawaban',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: _isLoading 
+                  ? const Center(child: CircularProgressIndicator())
+                  : _questions.isEmpty
+                      ? const Center(child: Text('Data soal tidak ditemukan'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          itemCount: _questions.length,
+                          itemBuilder: (context, index) {
+                            final question = _questions[index];
+                            return _buildReviewItem(question, index, _questions.length);
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
-      body: _isLoading 
-          ? const Center(child: CircularProgressIndicator())
-          : _questions.isEmpty
-              ? const Center(child: Text('Data soal tidak ditemukan'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: _questions.length,
-                  itemBuilder: (context, index) {
-                    final question = _questions[index];
-                    return _buildReviewItem(question, index, _questions.length);
-                  },
-                ),
     );
   }
 

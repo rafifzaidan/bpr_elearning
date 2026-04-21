@@ -34,14 +34,18 @@ class _ResultScreenState extends State<ResultScreen> {
 
     final allResults = examProv.results; 
 
+    final exams = examProv.exams;
+
+    double progress = 0.0;
+    if (exams.isNotEmpty) {
+      final completed = exams.where((e) => e.hasResult == true).length;
+      progress = (completed / exams.length) * 100;
+    }
+
     double accuracy = 0.0;
-    double averageScore = 0.0;
     if (allResults.isNotEmpty) {
-      final passedExams = allResults.where((r) => r.isPassed == true).length;
-      accuracy = (passedExams / allResults.length) * 100;
-      
       double totalScore = allResults.fold(0, (sum, item) => sum + item.score);
-      averageScore = totalScore / allResults.length;
+      accuracy = totalScore / allResults.length;
     }
     
     final results = allResults.where((result) {
@@ -79,19 +83,17 @@ class _ResultScreenState extends State<ResultScreen> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      _buildStatCard(
-                        title: 'Akurasi Lulus',
-                        value: '${accuracy.toStringAsFixed(0)}%',
-                        icon: Icons.check_circle_outline,
-                        color: Colors.green,
+                      _buildCircularStat(
+                        title: 'Progres Belajar',
+                        percentage: progress,
+                        color: Colors.orange,
                         isDark: isDark,
                       ),
                       const SizedBox(width: 12),
-                      _buildStatCard(
-                        title: 'Rata-rata Nilai',
-                        value: averageScore.toStringAsFixed(0),
-                        icon: Icons.trending_up,
-                        color: Colors.blue,
+                      _buildCircularStat(
+                        title: 'Akurasi',
+                        percentage: accuracy,
+                        color: Colors.blue.shade600,
                         isDark: isDark,
                       ),
                     ],
@@ -238,7 +240,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                             child: Icon(
                                               iconToUse,
                                               size: 48,
-                                              color: passed ? Colors.orange : Colors.red[400],
+                                              color: tagColor,
                                             ),
                                           ),
                                         ),
@@ -320,19 +322,18 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
-  Widget _buildStatCard({
+  Widget _buildCircularStat({
     required String title,
-    required String value,
-    required IconData icon,
+    required double percentage,
     required Color color,
     required bool isDark,
   }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[800] : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[200]!),
           boxShadow: isDark ? [] : [
             BoxShadow(
@@ -343,34 +344,41 @@ class _ResultScreenState extends State<ResultScreen> {
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
+            Stack(
+              alignment: Alignment.center,
               children: [
-                Icon(icon, size: 20, color: color),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[500],
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: CircularProgressIndicator(
+                    value: percentage / 100,
+                    backgroundColor: isDark ? Colors.grey[700] : Colors.grey.shade100,
+                    color: color,
+                    strokeWidth: 6,
+                  ),
+                ),
+                Text(
+                  "${percentage.toStringAsFixed(0)}%",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: color,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
+              title,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: color,
+                fontSize: 13,
               ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
