@@ -263,33 +263,59 @@ class _MainShellState extends State<MainShell> {
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BottomNavigationBar(
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            currentIndex: _currentIndex,
-            onTap: (index) {
-              setState(() => _currentIndex = index);
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_filled),
-                label: 'Dashboard',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.menu_book_rounded),
-                label: 'Courses',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.history),
-                label: 'Riwayat',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                label: 'Settings',
-              ),
-            ],
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(_screens.length, (index) {
+              final isSelected = _currentIndex == index;
+              final icons = [Icons.home_filled, Icons.menu_book_rounded, Icons.history, Icons.settings];
+              final labels = ['Home', 'Courses', 'Riwayat', 'Settings'];
+              
+              return GestureDetector(
+                onTap: () => setState(() => _currentIndex = index),
+                behavior: HitTestBehavior.opaque,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSelected ? 20 : 12,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected ? theme.primaryColor.withValues(alpha: 0.15) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        icons[index],
+                        color: isSelected ? theme.primaryColor : (isDark ? Colors.white70 : Colors.grey[600]),
+                      ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        child: isSelected
+                            ? Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  labels[index],
+                                  style: TextStyle(
+                                    color: theme.primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(width: 0),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ),
         ),
       ),
