@@ -75,8 +75,8 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     
     // Get user's answer from the result object
-    final userAnswer = widget.result.userAnswers?[question.id];
-    final correctAns = question.correctAns;
+    final userAnswer = widget.result.userAnswers?[question.id]?.toString().toUpperCase().trim();
+    final correctAns = question.correctAns.toUpperCase().trim();
     
     final sortedKeys = question.options.keys.toList()..sort();
 
@@ -141,8 +141,9 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
 
           // Options
           ...sortedKeys.map((key) {
-            final isUserChoice = userAnswer == key;
-            final isCorrectChoice = correctAns == key;
+            final currentKey = key.toUpperCase().trim();
+            final isUserChoice = userAnswer == currentKey;
+            final isCorrectChoice = correctAns == currentKey;
             
             Color bgColor = Colors.grey.withValues(alpha: 0.05);
             Color borderColor = Colors.grey.withValues(alpha: 0.2);

@@ -14,7 +14,8 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   int _selectedFilterIndex = 0;
-  final List<String> _filters = ['Semua Lencana', 'Sertifikasi', 'Penghargaan', 'Lulus'];
+  String searchQuery = '';
+  final List<String> _filters = ['Semua', 'Lulus', 'Gagal'];
 
   @override
   void initState() {
@@ -31,7 +32,30 @@ class _ResultScreenState extends State<ResultScreen> {
     final colorScheme = theme.colorScheme;
     final dateFormat = DateFormat('dd MMM yyyy');
 
-    final results = examProv.results; 
+    final allResults = examProv.results; 
+
+    double accuracy = 0.0;
+    double averageScore = 0.0;
+    if (allResults.isNotEmpty) {
+      final passedExams = allResults.where((r) => r.isPassed == true).length;
+      accuracy = (passedExams / allResults.length) * 100;
+      
+      double totalScore = allResults.fold(0, (sum, item) => sum + item.score);
+      averageScore = totalScore / allResults.length;
+    }
+    
+    final results = allResults.where((result) {
+      final matchesSearch = (result.examTitle ?? '').toLowerCase().contains(searchQuery.toLowerCase());
+      
+      bool matchesFilter = true;
+      if (_selectedFilterIndex == 1) { // Lulus
+        matchesFilter = result.isPassed == true;
+      } else if (_selectedFilterIndex == 2) { // Gagal
+        matchesFilter = result.isPassed != true;
+      }
+      
+      return matchesSearch && matchesFilter;
+    }).toList();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -46,11 +70,31 @@ class _ResultScreenState extends State<ResultScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                    const Text(
-                    'Koleksi Lencana',
+                    'Riwayat Kuis',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      _buildStatCard(
+                        title: 'Akurasi Lulus',
+                        value: '${accuracy.toStringAsFixed(0)}%',
+                        icon: Icons.check_circle_outline,
+                        color: Colors.green,
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildStatCard(
+                        title: 'Rata-rata Nilai',
+                        value: averageScore.toStringAsFixed(0),
+                        icon: Icons.trending_up,
+                        color: Colors.blue,
+                        isDark: isDark,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   Container(
@@ -66,8 +110,13 @@ class _ResultScreenState extends State<ResultScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                searchQuery = value;
+                              });
+                            },
                             decoration: InputDecoration(
-                              hintText: 'Cari lencana pengguna...',
+                              hintText: 'Cari riwayat kuis...',
                               hintStyle: TextStyle(color: Colors.grey[500]),
                               border: InputBorder.none,
                             ),
@@ -125,7 +174,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   : results.isEmpty
                       ? const Center(
                           child: Text(
-                            'Belum ada lencana yang didapatkan.',
+                            'Belum ada riwayat kuis.',
                             style: TextStyle(color: Colors.grey),
                           ),
                         )
@@ -142,9 +191,9 @@ class _ResultScreenState extends State<ResultScreen> {
                             final result = results[index];
                             final passed = result.isPassed == true;
                             // Badge properties based on pass/fail
-                            final tagColor = passed ? Colors.orange : Colors.red;
-                            final finalLabel = passed ? 'Lencana Emas' : 'Gagal Menyelesaikan';
-                            final iconToUse = passed ? Icons.workspace_premium : Icons.stars_outlined;
+                            final tagColor = passed ? Colors.green : Colors.red;
+                            final finalLabel = passed ? 'Selesai' : 'Gagal';
+                            final iconToUse = passed ? Icons.assignment_turned_in : Icons.assignment_late_outlined;
 
                             return Card(
                               elevation: 0,
@@ -264,6 +313,64 @@ class _ResultScreenState extends State<ResultScreen> {
                             );
                           },
                         ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required bool isDark,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.grey[800] : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isDark ? Colors.grey[700]! : Colors.grey[200]!),
+          boxShadow: isDark ? [] : [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 20, color: color),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ],
         ),

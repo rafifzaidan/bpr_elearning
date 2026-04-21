@@ -282,8 +282,8 @@ class _MainShellState extends State<MainShell> {
                 label: 'Courses',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.workspace_premium),
-                label: 'Badges',
+                icon: Icon(Icons.history),
+                label: 'Riwayat',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),
