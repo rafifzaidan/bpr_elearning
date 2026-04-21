@@ -49,6 +49,7 @@ dependencies:
   fl_chart: ^0.69.0               # Grafik skor/hasil ujian
   intl: ^0.20.1                   # Format tanggal/waktu
   syncfusion_flutter_pdfviewer: ^31.1.19
+  google_fonts: ^8.0.2
 
 dev_dependencies:
   flutter_test:

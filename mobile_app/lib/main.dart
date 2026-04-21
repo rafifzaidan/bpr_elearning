@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'providers/auth_provider.dart';
 import 'providers/module_provider.dart';
 import 'providers/exam_provider.dart';
@@ -43,31 +44,52 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
+    // Kustomisasi font Poppins untuk Teks Utama dan Sekunder (Mode Terang)
+    final baseTextTheme = GoogleFonts.poppinsTextTheme();
+    final customTextTheme = baseTextTheme.copyWith(
+      headlineLarge: baseTextTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+      headlineMedium: baseTextTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+      headlineSmall: baseTextTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+      titleLarge: baseTextTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
+      bodyLarge: baseTextTheme.bodyLarge?.copyWith(color: Colors.black87),
+      bodyMedium: baseTextTheme.bodyMedium?.copyWith(color: Colors.grey[800]),
+      bodySmall: baseTextTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+    );
+
+    // Desain Referensi Kustomisasi (Background Terang, Card Putih, Aksen Cyan/Biru Cerah)
+    final globalModernTheme = ThemeData.light().copyWith(
+      useMaterial3: true,
+      scaffoldBackgroundColor: const Color(0xFFF8F9FA), // Putih Keabu-abuan lembut
+      colorScheme: const ColorScheme.light(
+        primary: Color(0xFF00BFFF), // Biru Cerah (Teal/Aksen)
+        onPrimary: Colors.white,
+        surface: Colors.white,
+        onSurface: Colors.black87,
+      ),
+      textTheme: customTextTheme,
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 4,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Colors.white,
+        selectedItemColor: Color(0xFF00BFFF),
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        elevation: 16,
+      ),
+    );
+
     return MaterialApp(
       title: 'BPR E-Learning',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Inter',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E3A8A), // Deep blue
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E3A8A),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: globalModernTheme,
+      darkTheme: globalModernTheme, // Paksa tema konsisten di kedua mode untuk tes ini
       themeMode: themeProvider.themeMode,
-      // *** DEV MODE: set to false to restore normal login flow ***
       home: const SplashScreen(),
     );
   }
@@ -189,8 +211,6 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -201,10 +221,6 @@ class _MainShellState extends State<MainShell> {
         onTap: (index) {
           setState(() => _currentIndex = index);
         },
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF0284C7), // active warna biru muda (Gambar 2)
-        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_filled),
