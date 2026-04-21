@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,36 +45,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    // Kustomisasi font Poppins untuk Teks Utama dan Sekunder (Mode Terang)
+    // Kustomisasi font Poppins untuk Teks Utama dan Sekunder
     final baseTextTheme = GoogleFonts.poppinsTextTheme();
-    final customTextTheme = baseTextTheme.copyWith(
-      headlineLarge: baseTextTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
-      headlineMedium: baseTextTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
-      headlineSmall: baseTextTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
-      titleLarge: baseTextTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.black87),
-      bodyLarge: baseTextTheme.bodyLarge?.copyWith(color: Colors.black87),
-      bodyMedium: baseTextTheme.bodyMedium?.copyWith(color: Colors.grey[800]),
-      bodySmall: baseTextTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+    final customTextThemeUI = baseTextTheme.copyWith(
+      headlineLarge: baseTextTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
+      headlineMedium: baseTextTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+      headlineSmall: baseTextTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+      titleLarge: baseTextTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
     );
 
-    // Desain Referensi Kustomisasi (Background Terang, Card Putih, Aksen Cyan/Biru Cerah)
-    final globalModernTheme = ThemeData.light().copyWith(
+    // Tema Terang (Light Mode) Global
+    final lightTheme = ThemeData.light().copyWith(
       useMaterial3: true,
-      scaffoldBackgroundColor: const Color(0xFFF8F9FA), // Putih Keabu-abuan lembut
+      scaffoldBackgroundColor: const Color(0xFFF8F9FA), // Putih Keabu-abuan
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFF00BFFF), // Biru Cerah (Teal/Aksen)
+        primary: Color(0xFF00BFFF),
         onPrimary: Colors.white,
         surface: Colors.white,
         onSurface: Colors.black87,
       ),
-      textTheme: customTextTheme,
+      textTheme: customTextThemeUI.apply(bodyColor: Colors.black87, displayColor: Colors.black87),
       cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
@@ -84,11 +80,45 @@ class MyApp extends StatelessWidget {
       ),
     );
 
+    // Tema Gelap (Dark Mode) Global
+    final darkTheme = ThemeData.dark().copyWith(
+      useMaterial3: true,
+      scaffoldBackgroundColor: const Color(0xFF1A1D21), // Abu gelab khas Apple/Spotify
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF00BFFF),
+        onPrimary: Colors.white,
+        surface: Color(0xFF2C3136),
+        onSurface: Colors.white,
+      ),
+      textTheme: customTextThemeUI.apply(bodyColor: Colors.white, displayColor: Colors.white),
+      cardTheme: CardThemeData(
+        color: const Color(0xFF2C3136),
+        elevation: 4,
+        shadowColor: Colors.black.withValues(alpha: 0.3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF1A1D21),
+        selectedItemColor: Color(0xFF00BFFF),
+        unselectedItemColor: Colors.white70,
+        type: BottomNavigationBarType.fixed,
+        elevation: 16,
+      ),
+    );
+
     return MaterialApp(
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.unknown
+        },
+      ),
       title: 'BPR E-Learning',
       debugShowCheckedModeBanner: false,
-      theme: globalModernTheme,
-      darkTheme: globalModernTheme, // Paksa tema konsisten di kedua mode untuk tes ini
+      theme: lightTheme,
+      darkTheme: darkTheme, // Tema Gelap sekarang terdefinisi sempurna
       themeMode: themeProvider.themeMode,
       home: const SplashScreen(),
     );
@@ -211,34 +241,57 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
+      extendBody: true, // Prevents body from being cut off by floating bar
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() => _currentIndex = index);
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: 'Dashboard',
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
+        decoration: BoxDecoration(
+          color: theme.bottomNavigationBarTheme.backgroundColor ?? theme.cardColor,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BottomNavigationBar(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() => _currentIndex = index);
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_filled),
+                label: 'Dashboard',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.menu_book_rounded),
+                label: 'Courses',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.workspace_premium),
+                label: 'Badges',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'Settings',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book_rounded),
-            label: 'Courses',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.workspace_premium),
-            label: 'Badges',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        ),
       ),
     );
   }

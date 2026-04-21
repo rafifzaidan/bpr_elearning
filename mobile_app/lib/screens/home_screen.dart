@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.lightBlue.shade300, width: 1.5),
                   boxShadow: [
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.flash_on, color: Colors.black87, size: 24),
+                    const Icon(Icons.flash_on, size: 24),
                     const SizedBox(height: 12),
                     Text(
                       deadlinePrefix,
@@ -159,7 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
-                        color: Colors.black87,
                         height: 1.2,
                       ),
                       maxLines: 2,
@@ -211,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -253,7 +252,6 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 10,
-                color: Colors.black87,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -280,7 +278,6 @@ class _HomeScreenState extends State<HomeScreen> {
               const Text(
                 'Riwayat Kuis',
                 style: TextStyle(
-                  color: Colors.black87,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -334,7 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -367,7 +364,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.black87,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -421,7 +417,6 @@ class _HomeScreenState extends State<HomeScreen> {
               const Text(
                 'Saran Kursus',
                 style: TextStyle(
-                  color: Colors.black87,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -458,7 +453,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -491,7 +486,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: Colors.black87,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -554,7 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const primaryBlue = Color(0xFF00BFFF); 
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -582,7 +576,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -624,6 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: examProv.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

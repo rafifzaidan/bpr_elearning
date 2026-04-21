@@ -20,7 +20,7 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
   @override
   void initState() {
     super.initState();
-    _loadQuestions();
+    Future.microtask(() => _loadQuestions());
   }
 
   Future<void> _loadQuestions() async {

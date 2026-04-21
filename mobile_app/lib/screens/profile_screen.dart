@@ -13,17 +13,18 @@ class ProfileScreen extends StatelessWidget {
     final user = auth.user;
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    final scaffoldBg = isDark ? Colors.grey[900]! : const Color(0xFFF9FAFB);
-    final cardColor = isDark ? Colors.grey[850]! : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF1E293B);
-    final subtitleColor = isDark ? Colors.grey[400]! : const Color(0xFF94A3B8);
+    final cardColor = theme.cardTheme.color ?? colorScheme.surface;
+    final textColor = colorScheme.onSurface;
+    final subtitleColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
     final borderColor = isDark ? Colors.grey[800]! : Colors.grey.shade200;
-    final primaryColor = const Color(0xFF0284C7);
-    final primaryLight = isDark ? primaryColor.withValues(alpha: 0.2) : const Color(0xFFF0F6FF);
+    final primaryColor = colorScheme.primary;
+    final primaryLight = isDark ? primaryColor.withValues(alpha: 0.2) : primaryColor.withValues(alpha: 0.1);
 
     return Scaffold(
-      backgroundColor: scaffoldBg,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),

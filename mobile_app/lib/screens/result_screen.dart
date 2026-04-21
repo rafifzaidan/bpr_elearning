@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../providers/exam_provider.dart';
 import '../models/result.dart';
+import 'quiz_review_screen.dart';
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
@@ -13,10 +13,12 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
+  int _selectedFilterIndex = 0;
+  final List<String> _filters = ['Semua Lencana', 'Sertifikasi', 'Penghargaan', 'Lulus'];
+
   @override
   void initState() {
     super.initState();
-    // Streams are initiated by home list or exam list, but just to be sure
     final examProv = Provider.of<ExamProvider>(context, listen: false);
     Future.microtask(() => examProv.initStreams());
   }
@@ -24,294 +26,246 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     final examProv = Provider.of<ExamProvider>(context);
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
     final dateFormat = DateFormat('dd MMM yyyy');
 
+    final results = examProv.results; 
+
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Header
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.teal[700]!,
-                    Colors.teal[400]!,
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
-                ),
-              ),
-              child: SafeArea(
-                bottom: false,
-                child: Row(
-                  children: [
-                    const Icon(Icons.analytics_rounded,
-                        color: Colors.white, size: 28),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Hasil Ujian',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. Header Section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   const Text(
+                    'Koleksi Lencana',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          if (examProv.isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (examProv.results.isEmpty)
-            const SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.assignment_outlined,
-                        size: 60, color: Colors.grey),
-                    SizedBox(height: 12),
-                    Text('Belum ada hasil ujian',
-                        style: TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              ),
-            )
-          else ...[
-            // Score Chart
-            SliverToBoxAdapter(
-              child: _buildChart(examProv.results, colorScheme),
-            ),
-
-            // Results List
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final result = examProv.results[index];
-                    return _ResultCard(result: result, dateFormat: dateFormat);
-                  },
-                  childCount: examProv.results.length,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChart(List<Result> results, ColorScheme colorScheme) {
-    // Show last 7 results in chart
-    final chartData = results.take(7).toList().reversed.toList();
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-      child: Card(
-        elevation: 1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Grafik Skor Terakhir',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 180,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: 100,
-                    barTouchData: BarTouchData(
-                      touchTooltipData: BarTouchTooltipData(
-                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          return BarTooltipItem(
-                            rod.toY.toStringAsFixed(1),
-                            const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        },
-                      ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isDark ? colorScheme.surface : Colors.grey[100],
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: isDark ? Colors.grey[800]! : Colors.transparent),
                     ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            final idx = value.toInt();
-                            if (idx >= 0 && idx < chartData.length) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  '${idx + 1}',
-                                  style: const TextStyle(fontSize: 11),
-                                ),
-                              );
-                            }
-                            return const Text('');
-                          },
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) {
-                            if (value % 25 == 0) {
-                              return Text(
-                                value.toInt().toString(),
-                                style: const TextStyle(fontSize: 11),
-                              );
-                            }
-                            return const Text('');
-                          },
-                        ),
-                      ),
-                      topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      horizontalInterval: 25,
-                      getDrawingHorizontalLine: (value) => FlLine(
-                        color: Colors.grey.withValues(alpha: 0.2),
-                        strokeWidth: 1,
-                      ),
-                      drawVerticalLine: false,
-                    ),
-                    borderData: FlBorderData(show: false),
-                    barGroups: chartData.asMap().entries.map((entry) {
-                      final isPassed = entry.value.isPassed == true;
-                      return BarChartGroupData(
-                        x: entry.key,
-                        barRods: [
-                          BarChartRodData(
-                            toY: entry.value.score,
-                            color: isPassed ? Colors.green : Colors.red[400],
-                            width: 22,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(6),
-                              topRight: Radius.circular(6),
+                    child: Row(
+                      children: [
+                        Icon(Icons.search, color: Colors.grey[500]),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Cari lencana pengguna...',
+                              hintStyle: TextStyle(color: Colors.grey[500]),
+                              border: InputBorder.none,
                             ),
                           ),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ResultCard extends StatelessWidget {
-  final Result result;
-  final DateFormat dateFormat;
-
-  const _ResultCard({required this.result, required this.dateFormat});
-
-  @override
-  Widget build(BuildContext context) {
-    final passed = result.isPassed == true;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Card(
-        elevation: 0.5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Score circle
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: passed
-                      ? Colors.green.withValues(alpha: 0.1)
-                      : Colors.red.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    result.score.toStringAsFixed(0),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: passed ? Colors.green[700] : Colors.red[700],
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      result.examTitle ?? 'Ujian',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 15),
-                    ),
-                    if (result.moduleTitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        result.moduleTitle!,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
+            
+            // 2. Kategori Filter
+            SizedBox(
+              height: 40,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                scrollDirection: Axis.horizontal,
+                itemCount: _filters.length,
+                itemBuilder: (context, index) {
+                  final isActive = index == _selectedFilterIndex;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedFilterIndex = index),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isActive 
+                            ? theme.primaryColor 
+                            : (isDark ? colorScheme.surface : Colors.white),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isActive ? theme.primaryColor : (isDark ? Colors.grey[800]! : Colors.grey[300]!),
+                        ),
                       ),
-                    ],
-                    const SizedBox(height: 4),
-                    Text(
-                      dateFormat.format(result.finishedAt.toLocal()),
-                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _filters[index],
+                        style: TextStyle(
+                          color: isActive ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                          fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: passed
-                      ? Colors.green.withValues(alpha: 0.12)
-                      : Colors.red.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  passed ? 'LULUS' : 'TIDAK LULUS',
-                  style: TextStyle(
-                    color: passed ? Colors.green[700] : Colors.red[700],
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+
+            // 3. Badges Cards GridView
+            Expanded(
+              child: examProv.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : results.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Belum ada lencana yang didapatkan.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : GridView.builder(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.75, // Matching Courses card ratio
+                          ),
+                          itemCount: results.length,
+                          itemBuilder: (context, index) {
+                            final result = results[index];
+                            final passed = result.isPassed == true;
+                            // Badge properties based on pass/fail
+                            final tagColor = passed ? Colors.orange : Colors.red;
+                            final finalLabel = passed ? 'Lencana Emas' : 'Gagal Menyelesaikan';
+                            final iconToUse = passed ? Icons.workspace_premium : Icons.stars_outlined;
+
+                            return Card(
+                              elevation: 0,
+                              color: Colors.transparent,
+                              margin: EdgeInsets.zero,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => QuizReviewScreen(result: result)));
+                                },
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: theme.cardTheme.color,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: isDark ? Colors.grey[800]! : Colors.grey.shade200),
+                                    boxShadow: isDark ? [] : [
+                                      BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))
+                                    ],
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      // Inner-Top Gradient Container
+                                      Expanded(
+                                        flex: 4,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                              colors: [
+                                                tagColor.withOpacity(isDark ? 0.4 : 0.3),
+                                                tagColor.withOpacity(0.05),
+                                              ],
+                                            ),
+                                            borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(20),
+                                              topRight: Radius.circular(20),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Icon(
+                                              iconToUse,
+                                              size: 48,
+                                              color: passed ? Colors.orange : Colors.red[400],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // Inner-Bottom Content Container
+                                      Expanded(
+                                        flex: 6,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(12),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: tagColor.withOpacity(0.1),
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: Text(
+                                                  finalLabel,
+                                                  style: TextStyle(
+                                                    color: tagColor,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                result.examTitle ?? 'Pelatihan',
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14,
+                                                  height: 1.2,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Skor: ${result.score.toStringAsFixed(0)}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 12,
+                                                  color: passed ? Colors.green : Colors.red,
+                                                ),
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.event_available, size: 12, color: Colors.grey[500]),
+                                                  const SizedBox(width: 4),
+                                                  Expanded(
+                                                    child: Text(
+                                                      dateFormat.format(result.finishedAt.toLocal()),
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: Colors.grey[500],
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
         ),
       ),
     );
