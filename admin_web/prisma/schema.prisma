@@ -3,10 +3,12 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["public", "auth"]
 }
 
 // 1. Divisi (TI / Akuntansi) - Personalisasi konten per unit kerja
@@ -17,9 +19,9 @@ model Division {
   created_at    DateTime @default(now())
 
   users   User[]
-  modules Module[]
 
   @@map("divisions")
+  @@schema("public")
 }
 
 // 2. User (Pegawai) - Terhubung ke Supabase Auth UUID
@@ -40,6 +42,7 @@ model User {
   exam_results Result[]
 
   @@map("users")
+  @@schema("public")
 }
 
 // 3. Modul (Materi per Divisi)
@@ -49,14 +52,14 @@ model Module {
   description String?
   file_url    String?  // Link Supabase Storage
   file_type   String?  // 'pdf' | 'video'
-  division_id Int
-  division    Division @relation(fields: [division_id], references: [id])
+  division_ids Int[]   @default([])
   created_at  DateTime @default(now())
 
   questions Question[]
   exams     Exam[]
 
   @@map("modules")
+  @@schema("public")
 }
 
 // 4. Soal (Bank Soal per Modul)
@@ -70,6 +73,7 @@ model Question {
   weight      Int    @default(1)
 
   @@map("questions")
+  @@schema("public")
 }
 
 // 5. Ujian (Jadwal per Modul)
@@ -85,6 +89,7 @@ model Exam {
   results Result[]
 
   @@map("exams")
+  @@schema("public")
 }
 
 // 6. Hasil Ujian Pegawai
@@ -100,4 +105,5 @@ model Result {
 
   @@unique([user_id, exam_id])
   @@map("results")
+  @@schema("public")
 }

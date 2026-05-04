@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getModules, getDivisions, createModule } from "@/lib/actions";
+import { getModules, getDivisions, createModule, updateModule } from "@/lib/actions";
 
 export default function ModulesPage() {
   const [modules, setModules] = useState<any[]>([]);
@@ -10,6 +10,8 @@ export default function ModulesPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const [editingModule, setEditingModule] = useState<any>(null);
 
   useEffect(() => {
     loadData();
@@ -33,8 +35,21 @@ export default function ModulesPage() {
     setIsSubmitting(true);
     try {
       const formData = new FormData(e.currentTarget);
-      await createModule(formData);
+      
+      // Collect selected divisions from checkboxes
+      const selectedDivisions = Array.from(e.currentTarget.querySelectorAll('input[name="divisionIds"]:checked')).map((cb: any) => cb.value);
+      if (selectedDivisions.length === 0) {
+        throw new Error("Pilih setidaknya satu divisi!");
+      }
+      formData.set("divisionIds", JSON.stringify(selectedDivisions));
+
+      if (editingModule) {
+        await updateModule(editingModule.id, formData);
+      } else {
+        await createModule(formData);
+      }
       setShowModal(false);
+      setEditingModule(null);
       setSelectedFile(null);
       loadData();
     } catch (error: any) {
@@ -42,6 +57,16 @@ export default function ModulesPage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function openEditModal(m: any) {
+    setEditingModule(m);
+    setShowModal(true);
+  }
+
+  function openCreateModal() {
+    setEditingModule(null);
+    setShowModal(true);
   }
 
   return (
@@ -55,7 +80,7 @@ export default function ModulesPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={openCreateModal}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 shadow-sm transition-all cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -79,9 +104,16 @@ export default function ModulesPage() {
                 <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${m.file_type === "pdf" ? "bg-red-50 text-red-600" : "bg-purple-50 text-purple-600"}`}>
                   {m.file_type === "pdf" ? "📄 PDF" : "🎬 Video"}
                 </span>
-                <span className="text-[10px] font-medium text-slate-400">
-                  {new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-medium text-slate-400">
+                    {new Date(m.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                  </span>
+                  <button onClick={() => openEditModal(m)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Modul">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.14l-2.815.939.94-2.815a4.5 4.5 0 011.14-1.89l8.931-8.931Zm0 0L19.5 7.125" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight group-hover:text-blue-600 transition-colors">
                 {m.title}
@@ -97,11 +129,15 @@ export default function ModulesPage() {
                     </svg>
                     {m._count.questions} soal
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <span className="flex items-center gap-1.5 flex-wrap">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9s2.015-9 4.5-9m0 0a9.015 9.015 0 0 1 8.716 6.747M12 3a9.015 9.015 0 0 0-8.716 6.747" />
                     </svg>
-                    {m.division.name}
+                    {m.division_ids && m.division_ids.length > 0
+                      ? m.division_ids.length === divisions.length
+                        ? "Semuanya"
+                        : m.division_ids.map((id: number) => divisions.find((d) => d.id === id)?.name).filter(Boolean).join(", ")
+                      : "Semuanya"}
                   </span>
                 </div>
               </div>
@@ -116,27 +152,36 @@ export default function ModulesPage() {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !isSubmitting && setShowModal(false)} />
           <form onSubmit={handleSubmit} className="relative bg-white rounded-3xl shadow-xl w-full max-w-lg p-8 space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Tambah Modul Baru</h2>
-              <p className="text-sm text-slate-500 mt-1">Upload materi PDF atau Video</p>
+              <h2 className="text-xl font-bold text-slate-900">{editingModule ? "Edit Modul" : "Tambah Modul Baru"}</h2>
+              <p className="text-sm text-slate-500 mt-1">{editingModule ? "Ubah informasi materi" : "Upload materi PDF atau Video"}</p>
             </div>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">Judul Modul</label>
-                <input required name="title" type="text" placeholder="Contoh: Pengenalan Sistem Informasi" className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" />
+                <input required name="title" defaultValue={editingModule?.title} type="text" placeholder="Contoh: Pengenalan Sistem Informasi" className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Divisi</label>
-                  <select required name="divisionId" className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white outline-none cursor-pointer">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Divisi (Pilih Satu atau Lebih)</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-32 overflow-y-auto p-3 rounded-xl border border-slate-200 bg-slate-50/50">
                     {divisions.map((d) => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
+                      <label key={d.id} className="flex items-center gap-2 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          name="divisionIds"
+                          value={d.id}
+                          defaultChecked={editingModule ? editingModule.division_ids?.includes(d.id) : false}
+                          className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <span className="text-sm text-slate-700 group-hover:text-blue-600 transition-colors">{d.name}</span>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1.5">Tipe File</label>
-                  <select required name="fileType" className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white outline-none cursor-pointer">
+                  <select required name="fileType" defaultValue={editingModule?.file_type} className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white outline-none cursor-pointer">
                     <option value="pdf">📄 PDF</option>
                     <option value="video">🎬 Video</option>
                   </select>
@@ -144,7 +189,7 @@ export default function ModulesPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">Deskripsi</label>
-                <textarea name="description" rows={3} placeholder="Jelaskan isi materi singkat..." className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none" />
+                <textarea name="description" defaultValue={editingModule?.description} rows={3} placeholder="Jelaskan isi materi singkat..." className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">File Materi</label>
@@ -155,7 +200,7 @@ export default function ModulesPage() {
                     </svg>
                     <div className="flex text-sm text-slate-600 justify-center">
                       <label className="relative cursor-pointer bg-transparent rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                        <span>{selectedFile ? 'Ganti file' : 'Upload a file'}</span>
+                        <span>{selectedFile ? 'Ganti file' : (editingModule?.file_url ? 'Ganti file (Opsional)' : 'Upload a file')}</span>
                         <input name="file" type="file" className="sr-only" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
                       </label>
                       {!selectedFile && <p className="pl-1">or drag and drop</p>}
@@ -164,6 +209,8 @@ export default function ModulesPage() {
                       <p className="text-xs font-bold text-blue-600 mt-1 truncate max-w-[200px] mx-auto">
                         ✅ {selectedFile.name}
                       </p>
+                    ) : editingModule?.file_url ? (
+                      <p className="text-xs text-slate-400">Biarkan kosong jika tidak ingin mengubah file</p>
                     ) : (
                       <p className="text-xs text-slate-400">PDF atau MP4 up to 50MB</p>
                     )}
@@ -177,7 +224,7 @@ export default function ModulesPage() {
                 Batal
               </button>
               <button disabled={isSubmitting} type="submit" className="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all cursor-pointer">
-                {isSubmitting ? "Mengunggah..." : "Simpan Modul"}
+                {isSubmitting ? "Menyimpan..." : "Simpan Modul"}
               </button>
             </div>
           </form>

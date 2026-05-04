@@ -144,7 +144,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    const devBypassLogin = false;
+    const devBypassLogin = true;
 
     if (devBypassLogin) {
       final auth = Provider.of<AuthProvider>(context, listen: false);

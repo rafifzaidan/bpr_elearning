@@ -103,7 +103,7 @@ export async function updateUser(id: string, formData: FormData) {
 
 export async function getModules() {
   return await prisma.module.findMany({
-    include: { division: true, _count: { select: { questions: true } } },
+    include: { _count: { select: { questions: true } } },
     orderBy: { created_at: "desc" },
   });
 }
@@ -111,7 +111,8 @@ export async function getModules() {
 export async function createModule(formData: FormData) {
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
-  const divisionId = parseInt(formData.get("divisionId") as string);
+  const divisionIdsStr = formData.get("divisionIds") as string;
+  const divisionIds = divisionIdsStr ? JSON.parse(divisionIdsStr).map((id: any) => parseInt(id)) : [];
   const fileType = formData.get("fileType") as string;
   const file = formData.get("file") as File;
 
@@ -133,10 +134,44 @@ export async function createModule(formData: FormData) {
     data: {
       title,
       description,
-      division_id: divisionId,
+      division_ids: divisionIds,
       file_type: fileType,
       file_url: fileUrl,
     },
+  });
+
+  revalidatePath("/modules");
+  return { success: true };
+}
+
+export async function updateModule(id: number, formData: FormData) {
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const divisionIdsStr = formData.get("divisionIds") as string;
+  const divisionIds = divisionIdsStr ? JSON.parse(divisionIdsStr).map((id: any) => parseInt(id)) : [];
+  const fileType = formData.get("fileType") as string;
+  const file = formData.get("file") as File | null;
+
+  const updateData: any = {
+    title,
+    description,
+    division_ids: divisionIds,
+    file_type: fileType,
+  };
+
+  if (file && file.size > 0) {
+    const fileName = `${Date.now()}_${file.name.replaceAll(" ", "_")}`;
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from("modules")
+      .upload(fileName, file);
+
+    if (uploadError) throw new Error(`Gagal upload file: ${uploadError.message}`);
+    updateData.file_url = uploadData.path;
+  }
+
+  await prisma.module.update({
+    where: { id },
+    data: updateData,
   });
 
   revalidatePath("/modules");
