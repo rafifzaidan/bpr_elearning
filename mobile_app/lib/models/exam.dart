@@ -4,6 +4,7 @@ class Exam {
   final String title;
   final String? moduleTitle;
   final String? divisionName;
+  final String questionSetName;
   final DateTime startDate;
   final DateTime endDate;
   final bool? hasResult; // true if user already submitted
@@ -14,6 +15,7 @@ class Exam {
     required this.title,
     this.moduleTitle,
     this.divisionName,
+    this.questionSetName = "Default",
     required this.startDate,
     required this.endDate,
     this.hasResult,
@@ -43,6 +45,7 @@ class Exam {
       title: json['title'] ?? '',
       moduleTitle: modTitle ?? json['module_title'],
       divisionName: divName ?? json['division_name'],
+      questionSetName: json['question_set_name'] ?? 'Default',
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
       hasResult: json['has_result'],

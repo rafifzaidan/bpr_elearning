@@ -188,10 +188,20 @@ export async function getQuestions(moduleId?: number) {
   });
 }
 
+export async function getQuestionSetsByModule(moduleId: number) {
+  const sets = await prisma.question.findMany({
+    where: { module_id: moduleId },
+    select: { set_name: true },
+    distinct: ['set_name'],
+  });
+  return sets.map(s => s.set_name);
+}
+
 export async function createQuestion(formData: FormData) {
   const moduleId = parseInt(formData.get("moduleId") as string);
+  const setName = (formData.get("setName") as string) || "Default";
   const text = formData.get("text") as string;
-  const weight = parseInt(formData.get("weight") as string);
+  const weight = 1; // Defaulting to 1 as requested by user
   const correctAns = formData.get("correctAns") as string;
   const options = {
     A: formData.get("optionA") as string,
@@ -203,6 +213,7 @@ export async function createQuestion(formData: FormData) {
   await prisma.question.create({
     data: {
       module_id: moduleId,
+      set_name: setName,
       text,
       weight,
       correct_ans: correctAns,
@@ -210,6 +221,25 @@ export async function createQuestion(formData: FormData) {
     },
   });
 
+  revalidatePath("/questions");
+  return { success: true };
+}
+
+export async function deleteQuestionSet(moduleId: number, setName: string) {
+  await prisma.question.deleteMany({
+    where: {
+      module_id: moduleId,
+      set_name: setName,
+    },
+  });
+  revalidatePath("/questions");
+  return { success: true };
+}
+
+export async function deleteQuestion(id: number) {
+  await prisma.question.delete({
+    where: { id },
+  });
   revalidatePath("/questions");
   return { success: true };
 }
@@ -226,6 +256,7 @@ export async function getExams() {
 export async function createExam(formData: FormData) {
   const title = formData.get("title") as string;
   const moduleId = parseInt(formData.get("moduleId") as string);
+  const questionSetName = (formData.get("questionSetName") as string) || "Default";
   const startDate = new Date(formData.get("startDate") as string);
   const endDate = new Date(formData.get("endDate") as string);
 
@@ -233,6 +264,7 @@ export async function createExam(formData: FormData) {
     data: {
       title,
       module_id: moduleId,
+      question_set_name: questionSetName,
       start_date: startDate,
       end_date: endDate,
     },
@@ -245,6 +277,7 @@ export async function createExam(formData: FormData) {
 export async function updateExam(id: number, formData: FormData) {
   const title = formData.get("title") as string;
   const moduleId = parseInt(formData.get("moduleId") as string);
+  const questionSetName = (formData.get("questionSetName") as string) || "Default";
   const startDate = new Date(formData.get("startDate") as string);
   const endDate = new Date(formData.get("endDate") as string);
 
@@ -253,6 +286,7 @@ export async function updateExam(id: number, formData: FormData) {
     data: {
       title,
       module_id: moduleId,
+      question_set_name: questionSetName,
       start_date: startDate,
       end_date: endDate,
     },

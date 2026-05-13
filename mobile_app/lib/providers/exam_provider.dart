@@ -105,8 +105,8 @@ class ExamProvider with ChangeNotifier {
         });
   }
 
-  /// Fetch questions for a specific exam (via its module_id)
-  Future<void> fetchQuestions(int moduleId) async {
+  /// Fetch questions for a specific exam (via its module_id and set_name)
+  Future<void> fetchQuestions(int moduleId, String questionSetName) async {
     _isLoading = true;
     notifyListeners();
 
@@ -118,7 +118,8 @@ class ExamProvider with ChangeNotifier {
       final data = await _supabase
           .from('questions')
           .select()
-          .eq('module_id', moduleId);
+          .eq('module_id', moduleId)
+          .eq('set_name', questionSetName);
 
       _questions =
           (data as List).map((json) => Question.fromJson(json)).toList();
@@ -172,12 +173,12 @@ class ExamProvider with ChangeNotifier {
 
     final jsonAnswers = answers.map((k, v) => MapEntry(k.toString(), v));
 
-    await _supabase.from('results').insert({
+    await _supabase.from('results').upsert({
       'user_id': userId,
       'exam_id': examId,
       'score': score,
       'user_answers': jsonAnswers,
-    });
+    }, onConflict: 'user_id, exam_id');
 
     // Streams are active, we don't need to manually fetch anymore
     // fetchExams();

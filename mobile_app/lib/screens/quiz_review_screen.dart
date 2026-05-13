@@ -31,7 +31,7 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
       final exam = examProv.exams.firstWhere((e) => e.id == widget.result.examId);
       
       // Fetch questions for this module
-      await examProv.fetchQuestions(exam.moduleId);
+      await examProv.fetchQuestions(exam.moduleId, exam.questionSetName);
       
       if (mounted) {
         setState(() {

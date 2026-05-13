@@ -67,16 +67,8 @@ class AuthProvider with ChangeNotifier {
       if (response.user != null) {
         debugPrint('DEBUG: Password Correct! Checking MFA status...');
         
-        // Cek mfa_enabled dari meta data auth atau custom tabel
-        bool isMfaEnabled = response.user!.userMetadata?['mfa_enabled'] == true;
-        
-        if (!isMfaEnabled) {
-          // Double check database 
-          try {
-             final dbUser = await _supabase.from('users').select('mfa_enabled').eq('id', response.user!.id).single();
-             isMfaEnabled = dbUser['mfa_enabled'] == true;
-          } catch (_) {}
-        }
+        // Force disable MFA/OTP email confirmation as per user request
+        bool isMfaEnabled = false;
         
         if (isMfaEnabled) {
           debugPrint('DEBUG: MFA is enabled. Requesting OTP to email...');

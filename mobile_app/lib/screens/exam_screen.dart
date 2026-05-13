@@ -48,7 +48,7 @@ class _ExamScreenState extends State<ExamScreen> {
 
     // Load questions
     Future.microtask(() async {
-      await examProv.fetchQuestions(widget.exam.moduleId);
+      await examProv.fetchQuestions(widget.exam.moduleId, widget.exam.questionSetName);
       if (mounted) setState(() => _isLoaded = true);
     });
   }

@@ -174,7 +174,12 @@ export default function ExamsPage() {
                   return (
                     <tr key={e.id} className="border-b border-slate-50 hover:bg-slate-50/50">
                       <td className="px-6 py-3.5 font-medium text-slate-900">{e.title}</td>
-                      <td className="px-6 py-3.5 text-slate-600">{e.module.title}</td>
+                      <td className="px-6 py-3.5 text-slate-600">
+                        {e.module.title}
+                        <span className="ml-2 text-[10px] font-bold text-indigo-600 uppercase tracking-tight bg-indigo-50 px-2 py-0.5 rounded">
+                          Set: {e.question_set_name}
+                        </span>
+                      </td>
                       <td className="px-6 py-3.5 text-slate-500">{new Date(e.start_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
                       <td className="px-6 py-3.5 text-slate-500">{new Date(e.end_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
                       <td className="px-6 py-3.5 text-center">
@@ -234,6 +239,10 @@ export default function ExamsPage() {
                   ))}
                 </select>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Judul Soal (Set)</label>
+                <input required name="questionSetName" type="text" defaultValue="Default" placeholder="Contoh: Kuis 1" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500/20" />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Waktu Mulai</label>
@@ -277,6 +286,10 @@ export default function ExamsPage() {
                     <option key={m.id} value={m.id}>{m.title}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Judul Soal (Set)</label>
+                <input required name="questionSetName" type="text" defaultValue={editExam.question_set_name || "Default"} placeholder="Contoh: Kuis 1" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500/20" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

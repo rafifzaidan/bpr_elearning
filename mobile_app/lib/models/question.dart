@@ -5,6 +5,7 @@ class Question {
   final Map<String, String> options; // {"A": "...", "B": "...", "C": "...", "D": "..."}
   final String correctAns; // "A" | "B" | "C" | "D"
   final int weight;
+  final String setName;
 
   Question({
     required this.id,
@@ -13,6 +14,7 @@ class Question {
     required this.options,
     required this.correctAns,
     this.weight = 1,
+    this.setName = "Default",
   });
 
   factory Question.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class Question {
       options: parsedOptions,
       correctAns: json['correct_ans'] ?? '',
       weight: json['weight'] ?? 1,
+      setName: json['set_name'] ?? 'Default',
     );
   }
 }
