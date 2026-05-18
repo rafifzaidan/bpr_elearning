@@ -3,6 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'providers/auth_provider.dart';
 import 'providers/module_provider.dart';
 import 'providers/exam_provider.dart';
@@ -18,11 +20,12 @@ import 'screens/otp_verification_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await dotenv.load(fileName: ".env");
 
   await Supabase.initialize(
-    url: 'https://tqskhwdcofsxomtjpctw.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxc2tod2Rjb2ZzeG9tdGpwY3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjQxMzMsImV4cCI6MjA5MDEwMDEzM30.LoHfpqw88Zc5bng2IEfG8Ke7eIqBRw9C4novECkZnLk',
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
   runApp(
@@ -134,17 +137,64 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   late Future<void> _authFuture;
+  bool _isConnected = true;
 
   @override
   void initState() {
     super.initState();
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    _authFuture = auth.tryAutoLogin();
+    _authFuture = Future.value(); // Placeholder until connected
+    _checkConnectivity();
+  }
+
+  Future<void> _checkConnectivity() async {
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      setState(() {
+        _isConnected = false;
+      });
+    } else {
+      setState(() {
+        _isConnected = true;
+      });
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      setState(() {
+        _authFuture = auth.tryAutoLogin();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     const devBypassLogin = false;
+
+    if (!_isConnected) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.wifi_off, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                'Tidak Ada Koneksi Internet',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Silakan periksa koneksi Anda dan coba lagi.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: _checkConnectivity,
+                child: const Text('Coba Lagi'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     if (devBypassLogin) {
       final auth = Provider.of<AuthProvider>(context, listen: false);

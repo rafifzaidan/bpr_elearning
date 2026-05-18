@@ -55,15 +55,12 @@ class ExamProvider with ChangeNotifier {
           if (moduleIds.isNotEmpty) {
             final modulesData = await _supabase
                 .from('modules')
-                .select('id, title, division:divisions(name)')
+                .select('id, title, division_ids')
                 .inFilter('id', moduleIds.toList());
                 
             for (var m in modulesData) {
                final title = m['title'] as String;
                String divName = 'Umum';
-               if (m['division'] != null && m['division'] is Map) {
-                   divName = m['division']['name'] as String;
-               }
                moduleDetails[m['id'] as int] = {
                  'title': title,
                  'divisionName': divName,

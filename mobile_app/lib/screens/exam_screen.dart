@@ -221,7 +221,7 @@ class _ExamScreenState extends State<ExamScreen> {
                 decoration: BoxDecoration(
                   color: isTimeLow
                       ? Colors.red.withValues(alpha: 0.15)
-                      : colorScheme.primaryContainer,
+                      : colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

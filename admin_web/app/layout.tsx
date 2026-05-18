@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "./components/Sidebar";
+import LayoutWrapper from "./components/LayoutWrapper";
 
 export const metadata: Metadata = {
   title: "BPR E-Learning Admin",
@@ -21,14 +21,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-[var(--color-surface)]">
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <main className="flex-1 min-w-0">
-            <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-              {children}
-            </div>
-          </main>
-        </div>
+        <LayoutWrapper>
+          {children}
+        </LayoutWrapper>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { logout } from "../../lib/auth";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: DashboardIcon },
@@ -77,8 +78,8 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Collapse toggle */}
-        <div className="px-3 py-3 border-t border-white/10 shrink-0">
+        {/* Collapse toggle and Logout */}
+        <div className="px-3 py-3 border-t border-white/10 shrink-0 space-y-2">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-400 hover:bg-[var(--color-surface-sidebar-hover)] hover:text-white"
@@ -92,6 +93,17 @@ export default function Sidebar() {
               </>
             )}
           </button>
+
+          <form action={logout}>
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              title={collapsed ? "Logout" : undefined}
+            >
+              <LogoutIcon className="w-5 h-5 shrink-0" />
+              {!collapsed && <span>Logout</span>}
+            </button>
+          </form>
         </div>
       </aside>
 
@@ -167,6 +179,14 @@ function ChevronRightIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+    </svg>
+  );
+}
+
+function LogoutIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
     </svg>
   );
 }
