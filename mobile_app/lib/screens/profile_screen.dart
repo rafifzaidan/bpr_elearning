@@ -111,9 +111,9 @@ class ProfileScreen extends StatelessWidget {
                                         imageUrl: user!.avatarUrl!,
                                         fit: BoxFit.cover,
                                         placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                        errorWidget: (context, url, error) => Icon(Icons.person, color: primaryColor, size: 36),
+                                        errorWidget: (context, url, error) => Icon(Icons.person, color: isDark ? Colors.white : primaryColor, size: 36),
                                       )
-                                    : Icon(Icons.person, color: primaryColor, size: 36),
+                                    : Icon(Icons.person, color: isDark ? Colors.white : primaryColor, size: 36),
                           ),
                           Container(
                             padding: const EdgeInsets.all(4),
@@ -152,7 +152,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.edit, color: primaryColor, size: 24),
+                      icon: Icon(Icons.edit, color: isDark ? Colors.white : primaryColor, size: 24),
                       onPressed: () => _pickAndUploadImage(context, auth),
                     ),
                   ],
@@ -343,7 +343,7 @@ class _ActionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Row(
           children: [
-            Icon(icon, color: primaryColor, size: 26),
+            Icon(icon, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : primaryColor, size: 26),
             const SizedBox(width: 18),
             Expanded(
               child: Text(
@@ -386,7 +386,7 @@ class _ToggleTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
         children: [
-          Icon(icon, color: primaryColor, size: 26),
+          Icon(icon, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : primaryColor, size: 26),
           const SizedBox(width: 18),
           Expanded(
             child: Text(

@@ -567,7 +567,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final auth = Provider.of<AuthProvider>(context);
     final examProv = Provider.of<ExamProvider>(context);
     final user = auth.user;
     

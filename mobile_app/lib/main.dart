@@ -339,49 +339,22 @@ class _MainShellState extends State<MainShell> {
             children: List.generate(_screens.length, (index) {
               final isSelected = _currentIndex == index;
               final icons = [Icons.home_filled, Icons.menu_book_rounded, Icons.history, Icons.settings];
-              final labels = ['Home', 'Courses', 'Riwayat', 'Settings'];
+              final labels = ['Home', 'Courses', 'History', 'Settings'];
               
               return GestureDetector(
                 onTap: () => setState(() => _currentIndex = index),
                 behavior: HitTestBehavior.opaque,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isSelected ? 20 : 12,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
                     vertical: 12,
                   ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? theme.primaryColor.withValues(alpha: 0.15) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        icons[index],
-                        color: isSelected 
-                            ? (isDark ? Colors.white : theme.primaryColor) 
-                            : (isDark ? Colors.white70 : Colors.grey[600]),
-                      ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                        child: isSelected
-                            ? Padding(
-                                padding: const EdgeInsets.only(left: 8),
-                                child: Text(
-                                  labels[index],
-                                  style: TextStyle(
-                                    color: isDark ? Colors.white : theme.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(width: 0),
-                      ),
-                    ],
+                  child: Icon(
+                    icons[index],
+                    size: 28, // Sedikit diperbesar karena tanpa teks
+                    color: isSelected 
+                        ? (isDark ? Colors.white : theme.primaryColor) 
+                        : (isDark ? Colors.white70 : Colors.grey[600]),
                   ),
                 ),
               );
