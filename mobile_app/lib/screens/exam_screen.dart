@@ -42,9 +42,15 @@ class _ExamScreenState extends State<ExamScreen> {
       _module = null;
     }
 
-    // Calculate remaining time
-    _remaining = widget.exam.endDate.difference(DateTime.now());
-    if (_remaining.isNegative) _remaining = Duration.zero;
+    // Calculate remaining time based on duration_minutes if available,
+    // otherwise fall back to exam end_date
+    final durationMins = widget.exam.durationMinutes;
+    if (durationMins != null && durationMins > 0) {
+      _remaining = Duration(minutes: durationMins);
+    } else {
+      _remaining = widget.exam.endDate.difference(DateTime.now());
+      if (_remaining.isNegative) _remaining = Duration.zero;
+    }
 
     // Load questions
     Future.microtask(() async {
@@ -64,8 +70,9 @@ class _ExamScreenState extends State<ExamScreen> {
         return;
       }
       setState(() {
-        _remaining = widget.exam.endDate.difference(DateTime.now());
-        if (_remaining.isNegative) {
+        if (_remaining.inSeconds > 0) {
+          _remaining = _remaining - const Duration(seconds: 1);
+        } else {
           _remaining = Duration.zero;
           timer.cancel();
           _autoSubmit();
@@ -235,7 +242,7 @@ class _ExamScreenState extends State<ExamScreen> {
                       _formatDuration(_remaining),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: isTimeLow ? Colors.red : colorScheme.primary,
+                        color: isTimeLow ? Colors.red : (Theme.of(context).brightness == Brightness.dark ? Colors.white : colorScheme.primary),
                       ),
                     ),
                   ],
@@ -502,18 +509,42 @@ class _ExamScreenState extends State<ExamScreen> {
           // 4. Start Button
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              onPressed: _startQuiz,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                backgroundColor: colorScheme.primary,
-              ),
-              child: const Text(
-                'Mulai Kerjakan Soal',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
+            child: widget.exam.hasResult == true
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.grey.shade500),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Kuis Sudah Dikerjakan',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : FilledButton(
+                    onPressed: _startQuiz,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      backgroundColor: colorScheme.primary,
+                    ),
+                    child: const Text(
+                      'Mulai Kerjakan Soal',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
           ),
         ],
       ),

@@ -107,7 +107,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   Icon(
                                 _getFallbackIcon(data['icon']!),
                                 size: 150,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ),

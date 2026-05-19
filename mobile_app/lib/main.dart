@@ -3,7 +3,6 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'providers/auth_provider.dart';
 import 'providers/module_provider.dart';
@@ -21,11 +20,10 @@ import 'screens/otp_verification_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  await dotenv.load(fileName: ".env");
-
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    url: 'https://tqskhwdcofsxomtjpctw.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxc2tod2Rjb2ZzeG9tdGpwY3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MjQxMzMsImV4cCI6MjA5MDEwMDEzM30.LoHfpqw88Zc5bng2IEfG8Ke7eIqBRw9C4novECkZnLk',
   );
 
   runApp(
@@ -61,11 +59,21 @@ class MyApp extends StatelessWidget {
     final lightTheme = ThemeData.light().copyWith(
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xFFF8F9FA), // Putih Keabu-abuan
-      colorScheme: const ColorScheme.light(
-        primary: Color(0xFF00BFFF),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF0C0ABD),
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: const Color(0xFF0C0ABD),
         onPrimary: Colors.white,
         surface: Colors.white,
         onSurface: Colors.black87,
+      ),
+      primaryColor: const Color(0xFF0C0ABD),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0C0ABD),
+          foregroundColor: Colors.white,
+        ),
       ),
       textTheme: customTextThemeUI.apply(bodyColor: Colors.black87, displayColor: Colors.black87),
       cardTheme: CardThemeData(
@@ -76,7 +84,7 @@ class MyApp extends StatelessWidget {
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Colors.white,
-        selectedItemColor: Color(0xFF00BFFF),
+        selectedItemColor: Color(0xFF0C0ABD),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         elevation: 16,
@@ -87,11 +95,21 @@ class MyApp extends StatelessWidget {
     final darkTheme = ThemeData.dark().copyWith(
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xFF1A1D21), // Abu gelab khas Apple/Spotify
-      colorScheme: const ColorScheme.dark(
-        primary: Color(0xFF00BFFF),
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF0C0ABD),
+        brightness: Brightness.dark,
+      ).copyWith(
+        primary: const Color(0xFF0C0ABD),
         onPrimary: Colors.white,
-        surface: Color(0xFF2C3136),
+        surface: const Color(0xFF2C3136),
         onSurface: Colors.white,
+      ),
+      primaryColor: const Color(0xFF0C0ABD),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0C0ABD),
+          foregroundColor: Colors.white,
+        ),
       ),
       textTheme: customTextThemeUI.apply(bodyColor: Colors.white, displayColor: Colors.white),
       cardTheme: CardThemeData(
@@ -100,10 +118,10 @@ class MyApp extends StatelessWidget {
         shadowColor: Colors.black.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Color(0xFF1A1D21),
-        selectedItemColor: Color(0xFF00BFFF),
-        unselectedItemColor: Colors.white70,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xFF1E1E1E), // Sedikit lebih terang dari scaffold background
+        selectedItemColor: Colors.white, // Teks dan ikon aktif menjadi putih
+        unselectedItemColor: Colors.grey[400], // Ikon tidak aktif lebih terlihat
         type: BottomNavigationBarType.fixed,
         elevation: 16,
       ),
@@ -342,7 +360,9 @@ class _MainShellState extends State<MainShell> {
                     children: [
                       Icon(
                         icons[index],
-                        color: isSelected ? theme.primaryColor : (isDark ? Colors.white70 : Colors.grey[600]),
+                        color: isSelected 
+                            ? (isDark ? Colors.white : theme.primaryColor) 
+                            : (isDark ? Colors.white70 : Colors.grey[600]),
                       ),
                       AnimatedSize(
                         duration: const Duration(milliseconds: 300),
@@ -353,7 +373,7 @@ class _MainShellState extends State<MainShell> {
                                 child: Text(
                                   labels[index],
                                   style: TextStyle(
-                                    color: theme.primaryColor,
+                                    color: isDark ? Colors.white : theme.primaryColor,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
                                   ),

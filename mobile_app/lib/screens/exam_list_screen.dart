@@ -203,7 +203,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                             
                             if (exam.hasResult == true) {
                               statusText = 'SELESAI';
-                              statusColor = Colors.green;
+                              statusColor = theme.primaryColor;
                               // Find matching result to get completion date
                               final matchingResult = examProv.results.firstWhere(
                                 (r) => r.examId == exam.id,
@@ -216,11 +216,11 @@ class _ExamListScreenState extends State<ExamListScreen> {
                               dynamicDateText = 'Batas: ${dateFormat.format(exam.endDate.toLocal())}';
                             } else if (exam.isUpcoming) {
                               statusText = 'MENDATANG';
-                              statusColor = Colors.orange;
+                              statusColor = theme.primaryColor;
                               dynamicDateText = 'Mulai: ${dateFormat.format(exam.startDate.toLocal())}';
                             } else {
                               statusText = 'BERAKHIR';
-                              statusColor = Colors.red;
+                              statusColor = Colors.grey;
                               dynamicDateText = 'Berakhir: ${dateFormat.format(exam.endDate.toLocal())}';
                             }
 
@@ -244,7 +244,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Pelatihan "${exam.title}" belum dimulai.'),
-                                        backgroundColor: Colors.orange,
+                                        backgroundColor: theme.primaryColor,
                                         behavior: SnackBarBehavior.floating,
                                       ),
                                     );
@@ -252,7 +252,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Pelatihan "${exam.title}" sudah berakhir.'),
-                                        backgroundColor: Colors.red,
+                                        backgroundColor: Colors.grey,
                                         behavior: SnackBarBehavior.floating,
                                       ),
                                     );
@@ -338,7 +338,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                                 child: Text(
                                                   exam.moduleTitle ?? 'Umum',
                                                   style: TextStyle(
-                                                    color: theme.primaryColor,
+                                                    color: isDark ? Colors.white : theme.primaryColor,
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.bold,
                                                   ),

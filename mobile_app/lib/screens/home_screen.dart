@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.lightBlue.shade300, width: 1.5),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5), width: 1.5),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.02),
@@ -167,10 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 16),
                     if (pendingExams.isNotEmpty)
-                      const Text(
+                      Text(
                         "Kerjakan Sekarang",
                         style: TextStyle(
-                          color: Colors.orange,
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -189,13 +189,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildCircularStat(
                     title: "Progres Belajar",
                     percentage: progress.toDouble(),
-                    color: Colors.orange,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 8),
                   _buildCircularStat(
                     title: "Akurasi",
                     percentage: accuracy,
-                    color: Colors.blue.shade600,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ],
               ),
@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
-                    color: color,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : color,
                   ),
                 ),
               ],
@@ -282,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 4,
                     height: 18,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00BFFF),
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -303,10 +303,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => const ExamListScreen()),
                   );
                 },
-                child: const Text(
+                child: Text(
                   'View All',
                   style: TextStyle(
-                    color: Color(0xFF00BFFF),
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).colorScheme.primary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -436,7 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 4,
                     height: 18,
                     decoration: BoxDecoration(
-                      color: Colors.orange,
+                      color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -543,9 +543,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           exam.isActive ? 'Kerjakan\nSekarang' : 'Lihat\nMateri',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: exam.isActive
-                                ? const Color(0xFF0284C7)
-                                : Colors.orange,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Theme.of(context).colorScheme.primary,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                           ),
@@ -554,9 +552,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 14,
-                          color: exam.isActive
-                              ? const Color(0xFF0284C7)
-                              : Colors.orange,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ],
                     ),
@@ -576,7 +572,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = auth.user;
     
     // Warna biru primary
-    const primaryBlue = Color(0xFF00BFFF); 
+    const primaryBlue = Color(0xFF0C0ABD); 
 
     return Scaffold(
       
@@ -618,10 +614,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Text(
                           user?.divisionName ?? 'Jurusan',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: primaryBlue,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : primaryBlue,
                           ),
                         ),
                       ),
@@ -645,10 +641,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               backgroundColor: primaryBlue.withValues(alpha: 0.1),
                               child: Text(
                                 (user.fullName.isNotEmpty ? user.fullName[0] : 'P').toUpperCase(),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: primaryBlue,
+                                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : primaryBlue,
                                 ),
                               ),
                             ),
@@ -659,10 +655,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           backgroundColor: primaryBlue.withValues(alpha: 0.1),
                           child: Text(
                             (user?.fullName != null && user!.fullName.isNotEmpty ? user.fullName[0] : 'P').toUpperCase(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: primaryBlue,
+                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : primaryBlue,
                             ),
                           ),
                         ),

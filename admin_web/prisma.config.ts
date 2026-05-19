@@ -1,5 +1,10 @@
-import "dotenv/config";
+import * as dotenv from "dotenv";
+import * as path from "path";
 import { defineConfig } from "prisma/config";
+
+// Load .env.local so DATABASE_URL is available when running prisma CLI commands
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

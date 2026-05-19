@@ -273,7 +273,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                                 Text(
                                                   result.moduleTitle!,
                                                   style: TextStyle(
-                                                    color: theme.primaryColor,
+                                                    color: isDark ? Colors.white : theme.primaryColor,
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -375,7 +375,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: color,
+                    color: isDark ? Colors.white : color,
                   ),
                 ),
               ],

@@ -8,6 +8,7 @@ class Exam {
   final DateTime startDate;
   final DateTime endDate;
   final bool? hasResult; // true if user already submitted
+  final int? durationMinutes; // null = use endDate as deadline
 
   Exam({
     required this.id,
@@ -19,6 +20,7 @@ class Exam {
     required this.startDate,
     required this.endDate,
     this.hasResult,
+    this.durationMinutes,
   });
 
   bool get isActive {
@@ -49,6 +51,7 @@ class Exam {
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
       hasResult: json['has_result'],
+      durationMinutes: json['duration_minutes'],
     );
   }
 }

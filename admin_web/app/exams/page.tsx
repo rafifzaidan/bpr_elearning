@@ -142,6 +142,7 @@ export default function ExamsPage() {
                 <th className="text-left px-6 py-3 font-medium text-slate-500">Modul</th>
                 <th className="text-left px-6 py-3 font-medium text-slate-500">Waktu Mulai</th>
                 <th className="text-left px-6 py-3 font-medium text-slate-500">Waktu Selesai</th>
+                <th className="text-center px-6 py-3 font-medium text-slate-500">Durasi</th>
                 <th className="text-center px-6 py-3 font-medium text-slate-500">Status</th>
                 <th className="text-right px-6 py-3 font-medium text-slate-500">Aksi</th>
               </tr>
@@ -182,6 +183,12 @@ export default function ExamsPage() {
                       </td>
                       <td className="px-6 py-3.5 text-slate-500">{new Date(e.start_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
                       <td className="px-6 py-3.5 text-slate-500">{new Date(e.end_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
+                      <td className="px-6 py-3.5 text-center">
+                        {e.duration_minutes
+                          ? <span className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700">⏱ {e.duration_minutes} menit</span>
+                          : <span className="text-slate-400 text-xs">Sampai deadline</span>
+                        }
+                      </td>
                       <td className="px-6 py-3.5 text-center">
                         <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusColor}`}>
                           {status.toUpperCase()}
@@ -253,6 +260,20 @@ export default function ExamsPage() {
                   <input required name="endDate" type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none" />
                 </div>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  ⏱ Durasi Pengerjaan (menit)
+                  <span className="ml-1 text-xs font-normal text-slate-400">— opsional, kosongkan jika sampai deadline</span>
+                </label>
+                <input
+                  name="durationMinutes"
+                  type="number"
+                  min="1"
+                  max="300"
+                  placeholder="Contoh: 90"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -300,6 +321,21 @@ export default function ExamsPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Waktu Selesai</label>
                   <input required name="endDate" defaultValue={formatDateTimeLocal(editExam.end_date)} type="datetime-local" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  ⏱ Durasi Pengerjaan (menit)
+                  <span className="ml-1 text-xs font-normal text-slate-400">— opsional, kosongkan jika sampai deadline</span>
+                </label>
+                <input
+                  name="durationMinutes"
+                  type="number"
+                  min="1"
+                  max="300"
+                  defaultValue={editExam.duration_minutes ?? ""}
+                  placeholder="Contoh: 90"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
               </div>
             </div>
 

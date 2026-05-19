@@ -259,6 +259,8 @@ export async function createExam(formData: FormData) {
   const questionSetName = (formData.get("questionSetName") as string) || "Default";
   const startDate = new Date(formData.get("startDate") as string);
   const endDate = new Date(formData.get("endDate") as string);
+  const durationMinutesStr = formData.get("durationMinutes") as string;
+  const durationMinutes = durationMinutesStr ? parseInt(durationMinutesStr) : null;
 
   await prisma.exam.create({
     data: {
@@ -267,6 +269,7 @@ export async function createExam(formData: FormData) {
       question_set_name: questionSetName,
       start_date: startDate,
       end_date: endDate,
+      duration_minutes: durationMinutes,
     },
   });
 
@@ -280,6 +283,8 @@ export async function updateExam(id: number, formData: FormData) {
   const questionSetName = (formData.get("questionSetName") as string) || "Default";
   const startDate = new Date(formData.get("startDate") as string);
   const endDate = new Date(formData.get("endDate") as string);
+  const durationMinutesStr = formData.get("durationMinutes") as string;
+  const durationMinutes = durationMinutesStr ? parseInt(durationMinutesStr) : null;
 
   await prisma.exam.update({
     where: { id },
@@ -289,6 +294,7 @@ export async function updateExam(id: number, formData: FormData) {
       question_set_name: questionSetName,
       start_date: startDate,
       end_date: endDate,
+      duration_minutes: durationMinutes,
     },
   });
 

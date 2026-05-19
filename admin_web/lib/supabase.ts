@@ -1,17 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
-
 /**
- * Supabase Admin Client using SERVICE_ROLE_KEY.
- * ONLY use this on the server side (Server Actions / API Routes).
- * This client bypasses RLS and can manage Auth users.
+ * @deprecated Import directly from `lib/supabase-admin` or `lib/supabase-client` instead.
+ * This file exists for backward compatibility.
  */
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
+export { supabaseAdmin } from "./supabase-admin";
+export { supabaseClient } from "./supabase-client";
