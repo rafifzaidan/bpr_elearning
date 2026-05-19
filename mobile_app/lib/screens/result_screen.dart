@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/exam_provider.dart';
 import '../models/result.dart';
 import 'quiz_review_screen.dart';
@@ -220,34 +222,81 @@ class _ResultScreenState extends State<ResultScreen> {
                                     children: [
                                       // Inner-Top Gradient Container
                                       Expanded(
-                                        flex: 4,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                              colors: [
-                                                tagColor.withOpacity(isDark ? 0.4 : 0.3),
-                                                tagColor.withOpacity(0.05),
-                                              ],
+                                        flex: 6,
+                                        child: Stack(
+                                          children: [
+                                            result.moduleImageUrl != null && result.moduleImageUrl!.isNotEmpty
+                                                ? ClipRRect(
+                                                    borderRadius: const BorderRadius.only(
+                                                      topLeft: Radius.circular(20),
+                                                      topRight: Radius.circular(20),
+                                                    ),
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: Supabase.instance.client.storage.from('modules').getPublicUrl(result.moduleImageUrl!),
+                                                      fit: BoxFit.cover,
+                                                      width: double.infinity,
+                                                      height: double.infinity,
+                                                      placeholder: (context, url) => Container(
+                                                        color: Colors.grey[200],
+                                                        child: const Center(child: CircularProgressIndicator()),
+                                                      ),
+                                                      errorWidget: (context, url, error) => Container(
+                                                        color: Colors.grey[300],
+                                                        child: const Icon(Icons.broken_image, color: Colors.grey),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
+                                                        colors: [
+                                                          tagColor.withOpacity(isDark ? 0.4 : 0.3),
+                                                          tagColor.withOpacity(0.05),
+                                                        ],
+                                                      ),
+                                                      borderRadius: const BorderRadius.only(
+                                                        topLeft: Radius.circular(20),
+                                                        topRight: Radius.circular(20),
+                                                      ),
+                                                    ),
+                                                    child: Center(
+                                                      child: Icon(
+                                                        iconToUse,
+                                                        size: 48,
+                                                        color: tagColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                            Positioned(
+                                              top: 8,
+                                              right: 8,
+                                              child: Container(
+                                                padding: const EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black.withOpacity(0.1),
+                                                      blurRadius: 4,
+                                                    )
+                                                  ]
+                                                ),
+                                                child: Icon(
+                                                  iconToUse,
+                                                  size: 16,
+                                                  color: tagColor,
+                                                ),
+                                              ),
                                             ),
-                                            borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(20),
-                                              topRight: Radius.circular(20),
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              iconToUse,
-                                              size: 48,
-                                              color: tagColor,
-                                            ),
-                                          ),
+                                          ],
                                         ),
                                       ),
                                       // Inner-Bottom Content Container
                                       Expanded(
-                                        flex: 6,
+                                        flex: 5,
                                         child: Padding(
                                           padding: const EdgeInsets.all(12),
                                           child: Column(

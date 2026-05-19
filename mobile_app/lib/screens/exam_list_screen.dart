@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/exam_provider.dart';
 import '../providers/module_provider.dart';
 import '../models/exam.dart';
 import '../models/result.dart';
 import 'exam_screen.dart';
 import 'quiz_review_screen.dart';
+import 'module_detail_screen.dart';
 
 class ExamListScreen extends StatefulWidget {
   const ExamListScreen({super.key});
@@ -187,14 +190,13 @@ class _ExamListScreenState extends State<ExamListScreen> {
                           padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 1.2, // Back to previous ratio
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.85,
                           ),
                           itemCount: filteredExams.length,
                           itemBuilder: (context, index) {
                             final exam = filteredExams[index];
-                            final canTakeExam = exam.isActive && exam.hasResult != true;
                             
                             // Determine status and color
                             String statusText = '';
@@ -203,7 +205,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                             
                             if (exam.hasResult == true) {
                               statusText = 'SELESAI';
-                              statusColor = theme.primaryColor;
+                              statusColor = Colors.green;
                               // Find matching result to get completion date
                               final matchingResult = examProv.results.firstWhere(
                                 (r) => r.examId == exam.id,
@@ -239,7 +241,22 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                       Navigator.push(context, MaterialPageRoute(builder: (_) => QuizReviewScreen(result: matchingResult)));
                                     }
                                   } else if (exam.isActive) {
-                                    Navigator.push(context, MaterialPageRoute(builder: (_) => ExamScreen(exam: exam)));
+                                    final moduleProv = Provider.of<ModuleProvider>(context, listen: false);
+                                    final module = moduleProv.modules.cast<dynamic>().firstWhere(
+                                      (m) => m.id == exam.moduleId,
+                                      orElse: () => null,
+                                    );
+                                    if (module != null) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => ModuleDetailScreen(module: module),
+                                        ),
+                                      );
+                                    } else {
+                                      // Fallback directly to exam if module is missing
+                                      Navigator.push(context, MaterialPageRoute(builder: (_) => ExamScreen(exam: exam)));
+                                    }
                                   } else if (exam.isUpcoming) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -273,57 +290,78 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                     children: [
                                       // Inner-Top Gradient Container
                                       Expanded(
-                                        flex: 3, // Reverted to previous size
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                              colors: [
-                                                statusColor.withOpacity(0.2),
-                                                statusColor.withOpacity(0.02),
-                                              ],
-                                            ),
-                                            borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(16),
-                                              topRight: Radius.circular(16),
-                                            ),
-                                          ),
-                                          child: Stack(
-                                            children: [
-                                              Center(
-                                                child: Icon(
-                                                  exam.hasResult == true ? Icons.check_circle_rounded : Icons.school_rounded,
-                                                  size: 32, // Reverted to previous size
-                                                  color: statusColor,
-                                                ),
-                                              ),
-                                              Positioned(
-                                                top: 8,
-                                                right: 8,
-                                                child: Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                                  decoration: BoxDecoration(
-                                                    color: statusColor,
-                                                    borderRadius: BorderRadius.circular(6),
-                                                  ),
-                                                  child: Text(
-                                                    statusText,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 8,
-                                                      fontWeight: FontWeight.bold,
+                                        flex: 6,
+                                        child: Stack(
+                                          children: [
+                                            exam.moduleImageUrl != null && exam.moduleImageUrl!.isNotEmpty
+                                                ? ClipRRect(
+                                                    borderRadius: const BorderRadius.only(
+                                                      topLeft: Radius.circular(16),
+                                                      topRight: Radius.circular(16),
+                                                    ),
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: Supabase.instance.client.storage.from('modules').getPublicUrl(exam.moduleImageUrl!),
+                                                      fit: BoxFit.cover,
+                                                      width: double.infinity,
+                                                      height: double.infinity,
+                                                      placeholder: (context, url) => Container(
+                                                        color: Colors.grey[200],
+                                                        child: const Center(child: CircularProgressIndicator()),
+                                                      ),
+                                                      errorWidget: (context, url, error) => Container(
+                                                        color: Colors.grey[300],
+                                                        child: const Icon(Icons.broken_image, color: Colors.grey),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
+                                                        colors: [
+                                                          statusColor.withOpacity(0.2),
+                                                          statusColor.withOpacity(0.02),
+                                                        ],
+                                                      ),
+                                                      borderRadius: const BorderRadius.only(
+                                                        topLeft: Radius.circular(16),
+                                                        topRight: Radius.circular(16),
+                                                      ),
+                                                    ),
+                                                    child: Center(
+                                                      child: Icon(
+                                                        exam.hasResult == true ? Icons.check_circle_rounded : Icons.school_rounded,
+                                                        size: 32,
+                                                        color: statusColor,
+                                                      ),
                                                     ),
                                                   ),
+                                            Positioned(
+                                              top: 8,
+                                              right: 8,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: statusColor,
+                                                  borderRadius: BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  statusText.toUpperCase(),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       // Inner-Bottom Content Container
                                       Expanded(
-                                        flex: 7, // Reverted to previous size
+                                        flex: 5,
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                           child: Column(
@@ -354,6 +392,39 @@ class _ExamListScreenState extends State<ExamListScreen> {
                                                   fontSize: 14,
                                                   height: 1.2,
                                                 ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.assignment_outlined, size: 11, color: Colors.grey[600]),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '${exam.questionCount ?? 0} Soal',
+                                                    style: TextStyle(
+                                                      fontSize: 10, 
+                                                      color: Colors.grey[600], 
+                                                      fontWeight: FontWeight.w500
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    '•', 
+                                                    style: TextStyle(color: Colors.grey[400], fontSize: 10)
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Icon(Icons.timer_outlined, size: 11, color: Colors.grey[600]),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    exam.durationMinutes != null 
+                                                        ? '${exam.durationMinutes} Menit' 
+                                                        : 'Tanpa Batas',
+                                                    style: TextStyle(
+                                                      fontSize: 10, 
+                                                      color: Colors.grey[600], 
+                                                      fontWeight: FontWeight.w500
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                               const Spacer(),
                                               Row(

@@ -10,6 +10,7 @@ export default function ModulesPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const [editingModule, setEditingModule] = useState<any>(null);
 
@@ -51,6 +52,7 @@ export default function ModulesPage() {
       setShowModal(false);
       setEditingModule(null);
       setSelectedFile(null);
+      setSelectedImage(null);
       loadData();
     } catch (error: any) {
       alert(error.message);
@@ -66,6 +68,8 @@ export default function ModulesPage() {
 
   function openCreateModal() {
     setEditingModule(null);
+    setSelectedFile(null);
+    setSelectedImage(null);
     setShowModal(true);
   }
 
@@ -100,6 +104,11 @@ export default function ModulesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {modules.map((m) => (
             <div key={m.id} className="group bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300">
+              {m.image_url && (
+                <div className="w-full h-32 mb-4 rounded-xl overflow-hidden bg-slate-100">
+                  <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/modules/${m.image_url}`} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+              )}
               <div className="flex items-start justify-between mb-4">
                 <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${m.file_type === "pdf" ? "bg-red-50 text-red-600" : "bg-purple-50 text-purple-600"}`}>
                   {m.file_type === "pdf" ? "📄 PDF" : "🎬 Video"}
@@ -213,6 +222,33 @@ export default function ModulesPage() {
                       <p className="text-xs text-slate-400">Biarkan kosong jika tidak ingin mengubah file</p>
                     ) : (
                       <p className="text-xs text-slate-400">PDF atau MP4 up to 50MB</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Gambar Sampul (Opsional)</label>
+                <div className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-xl transition-colors ${selectedImage ? 'border-blue-500 bg-blue-50/30' : 'border-slate-200 hover:border-blue-400'}`}>
+                  <div className="space-y-1 text-center">
+                    <svg className={`mx-auto h-12 w-12 ${selectedImage ? 'text-blue-500' : 'text-slate-400'}`} stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <div className="flex text-sm text-slate-600 justify-center">
+                      <label className="relative cursor-pointer bg-transparent rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                        <span>{selectedImage ? 'Ganti gambar' : (editingModule?.image_url ? 'Ganti gambar (Opsional)' : 'Upload a image')}</span>
+                        <input name="image" type="file" accept="image/*" className="sr-only" onChange={(e) => setSelectedImage(e.target.files?.[0] || null)} />
+                      </label>
+                      {!selectedImage && <p className="pl-1">or drag and drop</p>}
+                    </div>
+                    {selectedImage ? (
+                      <p className="text-xs font-bold text-blue-600 mt-1 truncate max-w-[200px] mx-auto">
+                        ✅ {selectedImage.name}
+                      </p>
+                    ) : editingModule?.image_url ? (
+                      <p className="text-xs text-slate-400">Biarkan kosong jika tidak ingin mengubah gambar</p>
+                    ) : (
+                      <p className="text-xs text-slate-400">PNG, JPG up to 10MB</p>
                     )}
                   </div>
                 </div>

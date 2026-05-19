@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/module.dart';
 import '../providers/module_provider.dart';
 import '../providers/exam_provider.dart';
@@ -32,12 +34,26 @@ class ModuleDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withValues(alpha: 0.7),
-                  ],
-                ),
+                gradient: module.imageUrl == null || module.imageUrl!.isEmpty
+                    ? LinearGradient(
+                        colors: [
+                          colorScheme.primary,
+                          colorScheme.primary.withValues(alpha: 0.7),
+                        ],
+                      )
+                    : null,
+                image: module.imageUrl != null && module.imageUrl!.isNotEmpty
+                    ? DecorationImage(
+                        image: CachedNetworkImageProvider(
+                          Supabase.instance.client.storage.from('modules').getPublicUrl(module.imageUrl!),
+                        ),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          Colors.black.withOpacity(0.5), // Dark overlay for text readability
+                          BlendMode.darken,
+                        ),
+                      )
+                    : null,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(

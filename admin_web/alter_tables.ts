@@ -14,6 +14,10 @@ async function main() {
     await prisma.$executeRawUnsafe(`ALTER TABLE exams ADD COLUMN IF NOT EXISTS question_set_name TEXT NOT NULL DEFAULT 'Default';`);
     console.log("Added question_set_name to exams.");
 
+    console.log("Adding image_url to modules...");
+    await prisma.$executeRawUnsafe(`ALTER TABLE modules ADD COLUMN IF NOT EXISTS image_url TEXT;`);
+    console.log("Added image_url to modules.");
+
     console.log("Success!");
   } catch (error) {
     console.error("Error modifying tables:", error);

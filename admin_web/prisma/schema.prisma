@@ -45,6 +45,7 @@ model Module {
   description  String?
   file_url     String?
   file_type    String?
+  image_url    String?
   created_at   DateTime?  @default(now()) @db.Timestamptz(6)
   division_ids Int[]      @default([])
   exams        Exam[]

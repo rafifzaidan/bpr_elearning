@@ -55,17 +55,35 @@ class ExamProvider with ChangeNotifier {
           if (moduleIds.isNotEmpty) {
             final modulesData = await _supabase
                 .from('modules')
-                .select('id, title, division_ids')
+                .select('id, title, division_ids, image_url')
                 .inFilter('id', moduleIds.toList());
                 
             for (var m in modulesData) {
                final title = m['title'] as String;
+               final imageUrl = m['image_url'] as String?;
                String divName = 'Umum';
                moduleDetails[m['id'] as int] = {
                  'title': title,
                  'divisionName': divName,
+                 'imageUrl': imageUrl ?? '',
                };
             }
+          }
+
+          // Count questions for each (module_id, set_name)
+          final Map<String, int> questionCounts = {};
+          try {
+            final questionsData = await _supabase
+                .from('questions')
+                .select('module_id, set_name');
+            for (var q in questionsData) {
+              final mId = q['module_id'] as int;
+              final sName = q['set_name'] as String? ?? 'Default';
+              final key = '${mId}_${sName}';
+              questionCounts[key] = (questionCounts[key] ?? 0) + 1;
+            }
+          } catch (e) {
+            debugPrint('Error fetching question counts: $e');
           }
 
           List<int> completedExamIds = [];
@@ -83,10 +101,17 @@ class ExamProvider with ChangeNotifier {
 
           _exams = data.map((json) {
             json['has_result'] = completedExamIds.contains(json['id']);
-            // Manually inject moduleTitle and divisionName
+            // Inject question count
+            final mId = json['module_id'] as int;
+            final sName = json['question_set_name'] as String? ?? 'Default';
+            final key = '${mId}_${sName}';
+            json['question_count'] = questionCounts[key] ?? 0;
+
+            // Manually inject moduleTitle, divisionName, and imageUrl
             if (moduleDetails.containsKey(json['module_id'])) {
                json['module'] = {
                  'title': moduleDetails[json['module_id']]!['title'],
+                 'image_url': moduleDetails[json['module_id']]!['imageUrl'],
                  'division': { 'name': moduleDetails[json['module_id']]!['divisionName'] }
                };
             }
@@ -210,11 +235,12 @@ class ExamProvider with ChangeNotifier {
           final Set<int> examIds = data.map((e) => e['exam_id'] as int).toSet();
           final Map<int, String> examTitles = {};
           final Map<int, String> moduleTitles = {};
+          final Map<int, String> moduleImageUrls = {};
           
           if (examIds.isNotEmpty) {
              final examsData = await _supabase
                 .from('exams')
-                .select('id, title, module:modules(title)')
+                .select('id, title, module:modules(title, image_url)')
                 .inFilter('id', examIds.toList());
              
              for (var e in examsData) {
@@ -222,6 +248,9 @@ class ExamProvider with ChangeNotifier {
                 examTitles[examId] = e['title'] as String;
                 if (e['module'] != null) {
                    moduleTitles[examId] = e['module']['title'] as String;
+                   if (e['module']['image_url'] != null) {
+                     moduleImageUrls[examId] = e['module']['image_url'] as String;
+                   }
                 }
              }
           }
@@ -231,7 +260,9 @@ class ExamProvider with ChangeNotifier {
             if (examTitles.containsKey(examId)) {
                json['exam'] = {
                  'title': examTitles[examId],
-                 'module': moduleTitles.containsKey(examId) ? {'title': moduleTitles[examId]} : null,
+                 'module': moduleTitles.containsKey(examId) 
+                     ? {'title': moduleTitles[examId], 'image_url': moduleImageUrls[examId]} 
+                     : null,
                };
             }
             return Result.fromJson(json);

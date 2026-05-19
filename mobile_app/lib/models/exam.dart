@@ -9,6 +9,8 @@ class Exam {
   final DateTime endDate;
   final bool? hasResult; // true if user already submitted
   final int? durationMinutes; // null = use endDate as deadline
+  final String? moduleImageUrl;
+  final int? questionCount;
 
   Exam({
     required this.id,
@@ -21,6 +23,8 @@ class Exam {
     required this.endDate,
     this.hasResult,
     this.durationMinutes,
+    this.moduleImageUrl,
+    this.questionCount,
   });
 
   bool get isActive {
@@ -34,8 +38,10 @@ class Exam {
   factory Exam.fromJson(Map<String, dynamic> json) {
     String? modTitle;
     String? divName;
+    String? modImageUrl;
     if (json['module'] != null && json['module'] is Map) {
       modTitle = json['module']['title'];
+      modImageUrl = json['module']['image_url'];
       if (json['module']['division'] != null && json['module']['division'] is Map) {
          divName = json['module']['division']['name'];
       }
@@ -52,6 +58,8 @@ class Exam {
       endDate: DateTime.parse(json['end_date']),
       hasResult: json['has_result'],
       durationMinutes: json['duration_minutes'],
+      moduleImageUrl: modImageUrl ?? json['module_image_url'],
+      questionCount: json['question_count'],
     );
   }
 }

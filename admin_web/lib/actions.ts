@@ -115,8 +115,10 @@ export async function createModule(formData: FormData) {
   const divisionIds = divisionIdsStr ? JSON.parse(divisionIdsStr).map((id: any) => parseInt(id)) : [];
   const fileType = formData.get("fileType") as string;
   const file = formData.get("file") as File;
+  const image = formData.get("image") as File;
 
   let fileUrl = null;
+  let imageUrl = null;
 
   // 1. Upload file to Supabase Storage if present
   if (file && file.size > 0) {
@@ -129,7 +131,18 @@ export async function createModule(formData: FormData) {
     fileUrl = uploadData.path;
   }
 
-  // 2. Clear out mock data and save to DB
+  // 2. Upload image to Supabase Storage if present
+  if (image && image.size > 0) {
+    const imageName = `${Date.now()}_${image.name.replaceAll(" ", "_")}`;
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from("modules")
+      .upload(`module_images/${imageName}`, image);
+
+    if (uploadError) throw new Error(`Gagal upload gambar: ${uploadError.message}`);
+    imageUrl = uploadData.path;
+  }
+
+  // 3. Clear out mock data and save to DB
   await prisma.module.create({
     data: {
       title,
@@ -137,6 +150,7 @@ export async function createModule(formData: FormData) {
       division_ids: divisionIds,
       file_type: fileType,
       file_url: fileUrl,
+      image_url: imageUrl,
     },
   });
 
@@ -151,6 +165,7 @@ export async function updateModule(id: number, formData: FormData) {
   const divisionIds = divisionIdsStr ? JSON.parse(divisionIdsStr).map((id: any) => parseInt(id)) : [];
   const fileType = formData.get("fileType") as string;
   const file = formData.get("file") as File | null;
+  const image = formData.get("image") as File | null;
 
   const updateData: any = {
     title,
@@ -167,6 +182,16 @@ export async function updateModule(id: number, formData: FormData) {
 
     if (uploadError) throw new Error(`Gagal upload file: ${uploadError.message}`);
     updateData.file_url = uploadData.path;
+  }
+
+  if (image && image.size > 0) {
+    const imageName = `${Date.now()}_${image.name.replaceAll(" ", "_")}`;
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from("modules")
+      .upload(`module_images/${imageName}`, image);
+
+    if (uploadError) throw new Error(`Gagal upload gambar: ${uploadError.message}`);
+    updateData.image_url = uploadData.path;
   }
 
   await prisma.module.update({
@@ -301,6 +326,15 @@ export async function updateExam(id: number, formData: FormData) {
   revalidatePath("/exams");
   return { success: true };
 }
+
+export async function deleteExam(id: number) {
+  await prisma.exam.delete({
+    where: { id },
+  });
+  revalidatePath("/exams");
+  return { success: true };
+}
+
 
 /* ── 📊 RESULT ACTIONS ── */
 

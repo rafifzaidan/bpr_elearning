@@ -7,6 +7,7 @@ class Result {
   final DateTime finishedAt;
   final String? examTitle;
   final String? moduleTitle;
+  final String? moduleImageUrl;
   final Map<int, String>? userAnswers;
 
   Result({
@@ -18,16 +19,19 @@ class Result {
     required this.finishedAt,
     this.examTitle,
     this.moduleTitle,
+    this.moduleImageUrl,
     this.userAnswers,
   });
 
   factory Result.fromJson(Map<String, dynamic> json) {
     String? exTitle;
     String? modTitle;
+    String? modImgUrl;
     if (json['exam'] != null && json['exam'] is Map) {
       exTitle = json['exam']['title'];
       if (json['exam']['module'] != null && json['exam']['module'] is Map) {
         modTitle = json['exam']['module']['title'];
+        modImgUrl = json['exam']['module']['image_url'];
       }
     }
 
@@ -46,6 +50,7 @@ class Result {
       finishedAt: DateTime.parse(json['finished_at'] ?? DateTime.now().toIso8601String()),
       examTitle: exTitle ?? json['exam_title'],
       moduleTitle: modTitle ?? json['module_title'],
+      moduleImageUrl: modImgUrl,
       userAnswers: parsedUserAnswers,
     );
   }

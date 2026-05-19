@@ -5,6 +5,7 @@ class Module {
   final String? fileUrl;
   final String? fileType; // 'pdf' | 'video'
   final int divisionId;
+  final String? imageUrl;
 
   Module({
     required this.id,
@@ -13,6 +14,7 @@ class Module {
     this.fileUrl,
     this.fileType,
     required this.divisionId,
+    this.imageUrl,
   });
 
   factory Module.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Module {
       fileUrl: json['file_url'],
       fileType: json['file_type'],
       divisionId: json['division_id'] ?? 0,
+      imageUrl: json['image_url'],
     );
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getExams, getModules, createExam, updateExam } from "@/lib/actions";
+import { getExams, getModules, createExam, updateExam, deleteExam } from "@/lib/actions";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 
 export default function ExamsPage() {
@@ -132,99 +132,102 @@ export default function ExamsPage() {
         ))}
       </div>
 
-      {/* Exam Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="text-left px-6 py-3 font-medium text-slate-500">Nama Ujian</th>
-                <th className="text-left px-6 py-3 font-medium text-slate-500">Modul</th>
-                <th className="text-left px-6 py-3 font-medium text-slate-500">Waktu Mulai</th>
-                <th className="text-left px-6 py-3 font-medium text-slate-500">Waktu Selesai</th>
-                <th className="text-center px-6 py-3 font-medium text-slate-500">Durasi</th>
-                <th className="text-center px-6 py-3 font-medium text-slate-500">Status</th>
-                <th className="text-right px-6 py-3 font-medium text-slate-500">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-400">Memuat data ujian...</td>
-                </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-400">Tidak ada ujian dalam kategori ini.</td>
-                </tr>
-              ) : (
-                filtered.map((e) => {
-                  const now = new Date();
-                  const start = new Date(e.start_date);
-                  const end = new Date(e.end_date);
-                  let status = "Aktif";
-                  let statusColor = "bg-emerald-50 text-emerald-700";
-                  
-                  if (now < start) {
-                    status = "Mendatang";
-                    statusColor = "bg-blue-50 text-blue-700";
-                  } else if (now > end) {
-                    status = "Selesai";
-                    statusColor = "bg-slate-100 text-slate-500";
-                  }
-
-                  return (
-                    <tr key={e.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                      <td className="px-6 py-3.5 font-medium text-slate-900">{e.title}</td>
-                      <td className="px-6 py-3.5 text-slate-600">
-                        {e.module.title}
-                        <span className="ml-2 text-[10px] font-bold text-indigo-600 uppercase tracking-tight bg-indigo-50 px-2 py-0.5 rounded">
-                          Set: {e.question_set_name}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3.5 text-slate-500">{new Date(e.start_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
-                      <td className="px-6 py-3.5 text-slate-500">{new Date(e.end_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
-                      <td className="px-6 py-3.5 text-center">
-                        {e.duration_minutes
-                          ? <span className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700">⏱ {e.duration_minutes} menit</span>
-                          : <span className="text-slate-400 text-xs">Sampai deadline</span>
-                        }
-                      </td>
-                      <td className="px-6 py-3.5 text-center">
-                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusColor}`}>
-                          {status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3.5 text-right relative">
-                        <button 
-                          onClick={() => setShowDropdown(showDropdown === e.id ? null : e.id)}
-                          className="text-slate-400 hover:text-slate-600 cursor-pointer p-1"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
-                          </svg>
-                        </button>
-                        {showDropdown === e.id && (
-                          <div className="absolute right-10 top-8 w-32 bg-white rounded-xl shadow-lg border border-slate-100 z-10 py-1">
-                            <button
-                              onClick={() => {
-                                setEditExam(e);
-                                setShowDropdown(null);
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer"
-                            >
-                              Edit Jadwal
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+      {/* Exam Grid */}
+      {loading ? (
+        <div className="text-center py-20 text-slate-400">Memuat data ujian...</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl text-slate-500">
+          Tidak ada ujian dalam kategori ini. Klik "Jadwal Ujian" untuk membuat baru.
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filtered.map((e) => {
+            const now = new Date();
+            const start = new Date(e.start_date);
+            const end = new Date(e.end_date);
+            let status = "Aktif";
+            let statusColor = "bg-emerald-50 text-emerald-700";
+            
+            if (now < start) {
+              status = "Mendatang";
+              statusColor = "bg-blue-50 text-blue-700";
+            } else if (now > end) {
+              status = "Selesai";
+              statusColor = "bg-slate-100 text-slate-500";
+            }
+
+            return (
+              <div key={e.id} className="group bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 flex flex-col justify-between">
+                <div>
+                  {e.module?.image_url && (
+                    <div className="w-full h-32 mb-4 rounded-xl overflow-hidden bg-slate-100">
+                      <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/modules/${e.module.image_url}`} alt={e.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                  )}
+                  <div className="flex items-start justify-between mb-4">
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold ${statusColor}`}>
+                      {status.toUpperCase()}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setEditExam(e)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer" title="Edit Jadwal">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.14l-2.815.939.94-2.815a4.5 4.5 0 011.14-1.89l8.931-8.931Zm0 0L19.5 7.125" />
+                        </svg>
+                      </button>
+                      <button onClick={() => {
+                        setConfirmDialog({
+                          isOpen: true,
+                          action: async () => {
+                            try {
+                              await deleteExam(e.id);
+                              loadData();
+                            } catch (err: any) {
+                              alert(err.message);
+                            } finally {
+                              setConfirmDialog(prev => ({...prev, isOpen: false}));
+                            }
+                          },
+                          message: `Apakah Anda yakin ingin menghapus jadwal ujian "${e.title}"?`
+                        });
+                      }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer" title="Hapus Jadwal">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight group-hover:text-blue-600 transition-colors">
+                    {e.title}
+                  </h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-xs text-slate-600 font-medium">Modul: {e.module?.title}</span>
+                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-tight bg-indigo-50 px-2 py-0.5 rounded">
+                      Set: {e.question_set_name}
+                    </span>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>Mulai:</span>
+                    <span className="font-medium text-slate-700">{new Date(e.start_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>Selesai:</span>
+                    <span className="font-medium text-slate-700">{new Date(e.end_date).toLocaleString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+                    <span>Durasi:</span>
+                    {e.duration_minutes
+                      ? <span className="inline-flex items-center gap-1 font-semibold text-slate-700">⏱ {e.duration_minutes} menit</span>
+                      : <span className="text-slate-400 text-xs">Sampai deadline</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Schedule Modal */}
       {showModal && (
