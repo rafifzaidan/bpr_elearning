@@ -201,9 +201,6 @@ export default function ExamsPage() {
                   </h3>
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-xs text-slate-600 font-medium">Modul: {e.module?.title}</span>
-                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-tight bg-indigo-50 px-2 py-0.5 rounded">
-                      Set: {e.question_set_name}
-                    </span>
                   </div>
                 </div>
                 <div className="pt-4 border-t border-slate-100 space-y-2">
@@ -249,10 +246,7 @@ export default function ExamsPage() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Judul Soal (Set)</label>
-                <input required name="questionSetName" type="text" defaultValue="Default" placeholder="Contoh: Kuis 1" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500/20" />
-              </div>
+              <input type="hidden" name="questionSetName" value="Default" />
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Waktu Mulai</label>
@@ -311,10 +305,7 @@ export default function ExamsPage() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Judul Soal (Set)</label>
-                <input required name="questionSetName" type="text" defaultValue={editExam.question_set_name || "Default"} placeholder="Contoh: Kuis 1" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-blue-500/20" />
-              </div>
+              <input type="hidden" name="questionSetName" value="Default" />
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Waktu Mulai</label>

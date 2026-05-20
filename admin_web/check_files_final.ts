@@ -7,7 +7,7 @@ import fs from "fs";
 // Load from .env
 const envPath = path.resolve(process.cwd(), '.env');
 const envContent = fs.readFileSync(envPath, 'utf8');
-const envVars = {};
+const envVars: Record<string, string> = {};
 envContent.split('\n').forEach(line => {
   const parts = line.split('=');
   if (parts.length >= 2) {
