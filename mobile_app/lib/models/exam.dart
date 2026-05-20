@@ -11,6 +11,7 @@ class Exam {
   final int? durationMinutes; // null = use endDate as deadline
   final String? moduleImageUrl;
   final int? questionCount;
+  final bool canRetake;
 
   Exam({
     required this.id,
@@ -25,6 +26,7 @@ class Exam {
     this.durationMinutes,
     this.moduleImageUrl,
     this.questionCount,
+    this.canRetake = false,
   });
 
   bool get isActive {
@@ -60,6 +62,7 @@ class Exam {
       durationMinutes: json['duration_minutes'],
       moduleImageUrl: modImageUrl ?? json['module_image_url'],
       questionCount: json['question_count'],
+      canRetake: json['can_retake'] ?? false,
     );
   }
 }

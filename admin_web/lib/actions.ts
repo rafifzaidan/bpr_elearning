@@ -203,6 +203,38 @@ export async function updateModule(id: number, formData: FormData) {
   return { success: true };
 }
 
+export async function deleteModule(id: number) {
+  // 1. Fetch the module to get file_url and image_url for storage cleanup
+  const module = await prisma.module.findUnique({
+    where: { id },
+    select: { file_url: true, image_url: true }
+  });
+
+  if (module) {
+    const filesToDelete = [];
+    if (module.file_url) filesToDelete.push(module.file_url);
+    if (module.image_url) filesToDelete.push(module.image_url);
+
+    if (filesToDelete.length > 0) {
+      try {
+        await supabaseAdmin.storage
+          .from("modules")
+          .remove(filesToDelete);
+      } catch (err) {
+        console.error("Gagal menghapus file dari storage:", err);
+      }
+    }
+  }
+
+  // 2. Delete the module (which cascade deletes exams & questions)
+  await prisma.module.delete({
+    where: { id },
+  });
+
+  revalidatePath("/modules");
+  return { success: true };
+}
+
 /* ── 📝 QUESTION ACTIONS ── */
 
 export async function getQuestions(moduleId?: number) {
@@ -247,6 +279,35 @@ export async function createQuestion(formData: FormData) {
   });
 
   revalidatePath("/questions");
+  revalidatePath("/exams");
+  return { success: true };
+}
+
+export async function updateQuestion(id: number, formData: FormData) {
+  const moduleId = parseInt(formData.get("moduleId") as string);
+  const setName = (formData.get("setName") as string) || "Default";
+  const text = formData.get("text") as string;
+  const correctAns = formData.get("correctAns") as string;
+  const options = {
+    A: formData.get("optionA") as string,
+    B: formData.get("optionB") as string,
+    C: formData.get("optionC") as string,
+    D: formData.get("optionD") as string,
+  };
+
+  await prisma.question.update({
+    where: { id },
+    data: {
+      module_id: moduleId,
+      set_name: setName,
+      text,
+      correct_ans: correctAns,
+      options,
+    },
+  });
+
+  revalidatePath("/questions");
+  revalidatePath("/exams");
   return { success: true };
 }
 
@@ -258,6 +319,7 @@ export async function deleteQuestionSet(moduleId: number, setName: string) {
     },
   });
   revalidatePath("/questions");
+  revalidatePath("/exams");
   return { success: true };
 }
 
@@ -266,6 +328,7 @@ export async function deleteQuestion(id: number) {
     where: { id },
   });
   revalidatePath("/questions");
+  revalidatePath("/exams");
   return { success: true };
 }
 
@@ -281,11 +344,12 @@ export async function getExams() {
 export async function createExam(formData: FormData) {
   const title = formData.get("title") as string;
   const moduleId = parseInt(formData.get("moduleId") as string);
-  const questionSetName = (formData.get("questionSetName") as string) || "Default";
+  const questionSetName = `set_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const startDate = new Date(formData.get("startDate") as string);
   const endDate = new Date(formData.get("endDate") as string);
   const durationMinutesStr = formData.get("durationMinutes") as string;
   const durationMinutes = durationMinutesStr ? parseInt(durationMinutesStr) : null;
+  const canRetake = formData.get("canRetake") === "true" || formData.get("canRetake") === "on";
 
   await prisma.exam.create({
     data: {
@@ -295,6 +359,7 @@ export async function createExam(formData: FormData) {
       start_date: startDate,
       end_date: endDate,
       duration_minutes: durationMinutes,
+      can_retake: canRetake,
     },
   });
 
@@ -305,21 +370,21 @@ export async function createExam(formData: FormData) {
 export async function updateExam(id: number, formData: FormData) {
   const title = formData.get("title") as string;
   const moduleId = parseInt(formData.get("moduleId") as string);
-  const questionSetName = (formData.get("questionSetName") as string) || "Default";
   const startDate = new Date(formData.get("startDate") as string);
   const endDate = new Date(formData.get("endDate") as string);
   const durationMinutesStr = formData.get("durationMinutes") as string;
   const durationMinutes = durationMinutesStr ? parseInt(durationMinutesStr) : null;
+  const canRetake = formData.get("canRetake") === "true" || formData.get("canRetake") === "on";
 
   await prisma.exam.update({
     where: { id },
     data: {
       title,
       module_id: moduleId,
-      question_set_name: questionSetName,
       start_date: startDate,
       end_date: endDate,
       duration_minutes: durationMinutes,
+      can_retake: canRetake,
     },
   });
 

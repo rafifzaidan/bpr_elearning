@@ -223,23 +223,29 @@ class ModuleDetailScreen extends StatelessWidget {
           IconData statusIcon;
           bool canStart = false;
 
-          if (exam.hasResult == true) {
+          final bool alreadyDone = exam.hasResult == true;
+          final bool canRetake = exam.canRetake;
+
+          if (alreadyDone && !canRetake) {
             statusColor = Colors.grey;
             statusText = 'Sudah Dikerjakan';
             statusIcon = Icons.check_circle_rounded;
+            canStart = false;
           } else if (exam.isActive) {
             statusColor = Colors.green;
-            statusText = 'Sedang Berlangsung';
-            statusIcon = Icons.play_circle_rounded;
+            statusText = alreadyDone ? 'Sedang Berlangsung (Bisa Diulang)' : 'Sedang Berlangsung';
+            statusIcon = alreadyDone ? Icons.replay_rounded : Icons.play_circle_rounded;
             canStart = true;
           } else if (exam.isUpcoming) {
             statusColor = Colors.orange;
             statusText = 'Akan Datang';
             statusIcon = Icons.schedule_rounded;
+            canStart = false;
           } else {
             statusColor = Colors.red;
             statusText = 'Berakhir';
             statusIcon = Icons.cancel_rounded;
+            canStart = false;
           }
 
           return Container(
@@ -351,8 +357,8 @@ class ModuleDetailScreen extends StatelessWidget {
                     ),
                     child: Text(
                       canStart
-                          ? 'Mulai Kuis'
-                          : exam.hasResult == true
+                          ? (alreadyDone ? 'Kerjakan Ulang Kuis' : 'Mulai Kuis')
+                          : alreadyDone
                               ? 'Sudah Selesai'
                               : exam.isUpcoming
                                   ? 'Belum Dimulai'

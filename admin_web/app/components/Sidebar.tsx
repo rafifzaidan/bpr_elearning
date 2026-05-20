@@ -10,8 +10,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: DashboardIcon },
   { href: "/users", label: "Pegawai", icon: UsersIcon },
   { href: "/modules", label: "Modul", icon: BookIcon },
-  { href: "/questions", label: "Bank Soal", icon: QuestionIcon },
-  { href: "/exams", label: "Ujian", icon: ClipboardIcon },
+  { href: "/exams", label: "Ujian & Bank Soal", icon: ClipboardIcon },
   { href: "/results", label: "Hasil", icon: ChartIcon },
 ];
 

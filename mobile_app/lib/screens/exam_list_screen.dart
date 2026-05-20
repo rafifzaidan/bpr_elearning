@@ -202,8 +202,11 @@ class _ExamListScreenState extends State<ExamListScreen> {
                             String statusText = '';
                             Color statusColor = Colors.grey;
                             String dynamicDateText = '';
-                            
-                            if (exam.hasResult == true) {
+
+                            final bool alreadyDone = exam.hasResult == true;
+                            final bool canRetake = exam.canRetake;
+
+                            if (alreadyDone && !canRetake) {
                               statusText = 'SELESAI';
                               statusColor = Colors.green;
                               // Find matching result to get completion date
@@ -213,8 +216,8 @@ class _ExamListScreenState extends State<ExamListScreen> {
                               );
                               dynamicDateText = 'Selesai: ${dateFormat.format(matchingResult.finishedAt.toLocal())}';
                             } else if (exam.isActive) {
-                              statusText = 'BERJALAN';
-                              statusColor = theme.primaryColor;
+                              statusText = alreadyDone ? 'BISA DIULANG' : 'BERJALAN';
+                              statusColor = alreadyDone ? Colors.blue : theme.primaryColor;
                               dynamicDateText = 'Batas: ${dateFormat.format(exam.endDate.toLocal())}';
                             } else if (exam.isUpcoming) {
                               statusText = 'MENDATANG';
@@ -232,7 +235,7 @@ class _ExamListScreenState extends State<ExamListScreen> {
                               margin: EdgeInsets.zero,
                               child: InkWell(
                                 onTap: () {
-                                  if (exam.hasResult == true) {
+                                  if (alreadyDone && !canRetake) {
                                     final matchingResult = examProv.results.firstWhere(
                                       (r) => r.examId == exam.id,
                                       orElse: () => Result(id: 0, userId: '', examId: 0, score: 0.0, finishedAt: DateTime.now()),

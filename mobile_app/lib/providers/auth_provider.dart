@@ -15,7 +15,7 @@ class AuthProvider with ChangeNotifier {
   User? get user => _user;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null && !_isOtpPending;
-  bool get needsPasswordChange => _needsPasswordChange;
+  bool get needsPasswordChange => false; // Di-nonaktifkan sementara sesuai request
   bool get isOtpPending => _isOtpPending;
 
   final _supabase = supa.Supabase.instance.client;
