@@ -30,5 +30,26 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "add_column.ts",
+    "alter_tables.ts",
+    "check_db.ts",
+    "check_db_counts.ts",
+    "check_db_v2.ts",
+    "check_divisions.ts",
+    "check_files_final.ts",
+    "check_results.ts",
+    "check_results_direct.ts",
+    "check_storage.ts",
+    "check_users.ts",
+    "deep_check_geo.ts",
+    "drop_column.ts",
+    "fix_policy.ts",
+    "fix_rls.ts",
+    "fix_storage_policies.ts",
+    "prisma.config.ts",
+    "run_sql.ts",
+    "test-prisma.ts"
+  ]
 }
