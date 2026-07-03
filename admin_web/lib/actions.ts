@@ -71,7 +71,7 @@ let mockModules: any[] = (globalThis as any).mockModules || [
   },
   {
     id: 3,
-    title: "Modul Pengujian UET (User Evaluation Test)",
+    title: "Modul Pengujian UAT (User Acceptance Test)",
     description: "Modul materi khusus untuk pengujian fungsi kuis, durasi waktu, retake, dan pembaca modul pada e-Learning.",
     division_ids: [1, 2],
     file_type: "pdf",
@@ -103,7 +103,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
     id: 101,
     module_id: 3,
     set_name: "Default",
-    text: "Apa tujuan utama dari dilaksanakannya User Evaluation Test (UET) pada aplikasi?",
+    text: "Apa tujuan utama dari dilaksanakannya User Acceptance Test (UAT) pada aplikasi?",
     weight: 1,
     correct_ans: "A",
     options: {
@@ -112,7 +112,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "Menghitung kapasitas penyimpanan server",
       D: "Menilai performa hardware laptop"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 102,
@@ -127,7 +127,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "Membaca modul lewat mobile",
       D: "Mengubah logo instansi BPR"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 103,
@@ -142,13 +142,13 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "Data tidak bisa disimpan sama sekali",
       D: "Browser otomatis me-restart laptop"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 104,
     module_id: 3,
     set_name: "Default",
-    text: "Berapakah durasi pengerjaan yang diset pada kuis pengujian UET ini?",
+    text: "Berapakah durasi pengerjaan yang diset pada kuis pengujian UAT ini?",
     weight: 1,
     correct_ans: "C",
     options: {
@@ -157,7 +157,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "15 menit",
       D: "30 menit"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 105,
@@ -172,13 +172,13 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "Ujian otomatis terhapus",
       D: "Akun karyawan otomatis terblokir"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 106,
     module_id: 3,
     set_name: "Default",
-    text: "Divisi apa saja yang ditugaskan untuk mengikuti Modul Pengujian UET ini?",
+    text: "Divisi apa saja yang ditugaskan untuk mengikuti Modul Pengujian UAT ini?",
     weight: 1,
     correct_ans: "A",
     options: {
@@ -187,7 +187,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "Operasional dan SDM",
       D: "Seluruh divisi BPR kecuali TI"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 107,
@@ -202,7 +202,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "ZIP dan RAR",
       D: "PPTX saja"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 108,
@@ -217,7 +217,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "Mengirim email spam ke karyawan",
       D: "Menghapus akun karyawan secara acak"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 109,
@@ -232,7 +232,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "passwordku",
       D: "BPRJatim2026"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   },
   {
     id: 110,
@@ -247,7 +247,7 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       C: "Scan wajah (Face ID)",
       D: "Pertanyaan keamanan masa kecil"
     },
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   }
 ];
 (globalThis as any).mockQuestions = mockQuestions;
@@ -266,21 +266,22 @@ let mockExams: any[] = (globalThis as any).mockExams || [
   },
   {
     id: 3,
-    title: "Kuis Pengujian UET",
+    title: "Kuis Pengujian UAT",
     module_id: 3,
     question_set_name: "Default",
     start_date: new Date(),
     end_date: new Date(Date.now() + 86400000 * 30),
     duration_minutes: 15,
     can_retake: true,
-    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+    module: { title: "Modul Pengujian UAT (User Acceptance Test)" }
   }
 ];
 (globalThis as any).mockExams = mockExams;
 
-function syncUetMockData() {
+function syncUatMockData() {
   const uetModule = mockModules.find(
-    (m: any) => m.title.toLowerCase().includes("test uet") || m.title.toLowerCase().includes("uet test") || m.title.toLowerCase() === "uet"
+    (m: any) => m.title.toLowerCase().includes("test uet") || m.title.toLowerCase().includes("uet test") || m.title.toLowerCase() === "uet" ||
+                m.title.toLowerCase().includes("test uat") || m.title.toLowerCase().includes("uat test") || m.title.toLowerCase() === "uat"
   );
 
   if (uetModule) {
@@ -494,7 +495,7 @@ export async function getModules() {
     });
   } catch (err: any) {
     console.error("Database connection failed in getModules, returning mock data:", err.message);
-    syncUetMockData();
+    syncUatMockData();
     return mockModules;
   }
 }
@@ -683,7 +684,7 @@ export async function getQuestions(moduleId?: number) {
     });
   } catch (err: any) {
     console.error("Database connection failed in getQuestions, returning mock data:", err.message);
-    syncUetMockData();
+    syncUatMockData();
     const filtered = moduleId ? mockQuestions.filter(q => q.module_id === moduleId) : mockQuestions;
     return filtered;
   }
@@ -872,7 +873,7 @@ export async function getExams() {
     });
   } catch (err: any) {
     console.error("Database connection failed in getExams, returning mock data:", err.message);
-    syncUetMockData();
+    syncUatMockData();
     return mockExams;
   }
 }

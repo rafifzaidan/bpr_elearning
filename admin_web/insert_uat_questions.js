@@ -28,7 +28,7 @@ if (!databaseUrl) {
 
 const questionsData = [
   {
-    text: "Apa tujuan utama dari dilaksanakannya User Evaluation Test (UET) pada aplikasi?",
+    text: "Apa tujuan utama dari dilaksanakannya User Acceptance Test (UAT) pada aplikasi?",
     weight: 1,
     correct_ans: "A",
     options: {
@@ -61,7 +61,7 @@ const questionsData = [
     }
   },
   {
-    text: "Berapakah durasi pengerjaan yang diset pada kuis pengujian UET ini?",
+    text: "Berapakah durasi pengerjaan yang diset pada kuis pengujian UAT ini?",
     weight: 1,
     correct_ans: "C",
     options: {
@@ -83,7 +83,7 @@ const questionsData = [
     }
   },
   {
-    text: "Divisi apa saja yang ditugaskan untuk mengikuti Modul Pengujian UET ini?",
+    text: "Divisi apa saja yang ditugaskan untuk mengikuti Modul Pengujian UAT ini?",
     weight: 1,
     correct_ans: "A",
     options: {
@@ -146,13 +146,14 @@ async function run() {
   try {
     const client = await pool.connect();
     
-    // 1. Cari modul dengan nama "test uet"
+    // 1. Cari modul dengan nama "test uet" atau "test uat"
     const modulesRes = await client.query(`
       SELECT id, title FROM public.modules 
-      WHERE LOWER(title) LIKE '%test uet%' OR LOWER(title) LIKE '%uet%'
+      WHERE LOWER(title) LIKE '%test uet%' OR LOWER(title) LIKE '%uet%' OR
+            LOWER(title) LIKE '%test uat%' OR LOWER(title) LIKE '%uat%'
     `);
     
-    console.log(`Menemukan ${modulesRes.rows.length} modul pengujian UET di database.`);
+    console.log(`Menemukan ${modulesRes.rows.length} modul pengujian UAT/UET di database.`);
     
     for (const mod of modulesRes.rows) {
       console.log(`\nMemproses modul ID ${mod.id}: "${mod.title}"...`);
