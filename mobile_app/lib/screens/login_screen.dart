@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> _submit() async {
     if (_nipCtrl.text.trim().isEmpty || _passwordCtrl.text.isEmpty) {
       _showCustomDialog(
-        title: 'Validasi',
+        title: 'Peringatan',
         message: 'NIP dan Password tidak boleh kosong',
       );
       return;
