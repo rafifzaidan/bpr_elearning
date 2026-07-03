@@ -39,7 +39,6 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> _submit() async {
     if (_nipCtrl.text.trim().isEmpty || _passwordCtrl.text.isEmpty) {
       _showCustomDialog(
-        title: 'Peringatan',
         message: 'NIP dan Password tidak boleh kosong',
       );
       return;
@@ -61,7 +60,6 @@ class _LoginScreenState extends State<LoginScreen>
           msg = 'NIP atau password salah. Silakan coba lagi.';
         }
         _showCustomDialog(
-          title: 'Gagal Masuk',
           message: msg,
         );
       }
@@ -104,7 +102,6 @@ class _LoginScreenState extends State<LoginScreen>
                 await Provider.of<AuthProvider>(context, listen: false).sendPasswordResetEmail(emailCtrl.text);
                 if (mounted) {
                   _showCustomDialog(
-                    title: 'Berhasil',
                     message: 'Link reset password telah dikirim ke email Anda.',
                     isSuccess: true,
                   );
@@ -112,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen>
               } catch (e) {
                 if (mounted) {
                   _showCustomDialog(
-                    title: 'Gagal',
                     message: 'Gagal mengirim email: ${e.toString().replaceAll('Exception: ', '')}',
                   );
                 }
@@ -126,7 +122,6 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _showCustomDialog({
-    required String title,
     required String message,
     bool isSuccess = false,
   }) {
@@ -170,25 +165,15 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Title
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Message Content
+                // Message Content (Centered and bold as the primary text)
                 Text(
                   message,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
-                    height: 1.5,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -455,7 +440,6 @@ class _LoginScreenState extends State<LoginScreen>
                           GestureDetector(
                             onTap: () {
                               _showCustomDialog(
-                                title: 'Info Akses',
                                 message: 'Silakan hubungi tim HR/TI BPR Jatim.',
                                 isSuccess: true,
                               );
