@@ -1,0 +1,71 @@
+\chapter{PENDAHULUAN}
+
+\section{Latar Belakang}
+
+Perkembangan teknologi informasi saat ini menuntut efisiensi kerja yang tinggi di berbagai sektor industri, termasuk perbankan. Dalam upaya meningkatkan kompetensi sumber daya manusia (SDM) secara internal, PT. Bank Perekonomian Rakyat Jawa Timur (PT. BPR Jatim (Perseroda)) berinisiatif membangun sistem pelatihan mandiri digital. Sebelumnya, perusahaan masih mengandalkan platform pelatihan pihak ketiga (\textit{third-party}) yang memiliki lisensi berbayar tinggi dan fitur yang tidak dapat dikustomisasi (\textit{non-customizable}) sesuai dengan kurikulum internal perbankan.
+
+Oleh karena itu, diperlukan sebuah sistem pembelajaran mandiri berbasis digital (\textit{e-Learning}) yang dikembangkan secara internal (\textit{in-house development}) untuk memenuhi kebutuhan operasional divisi PSDM. Sistem ini dirancang secara \textit{multiplatform} untuk memudahkan aksesibilitas, baik melalui portal \textit{web admin} maupun aplikasi \textit{mobile app} karyawan.
+
+\section{Perumusan Masalah}
+
+Berdasarkan analisis situasi di atas, rumusan masalah yang diajukan dalam proyek Kerja Praktik ini adalah bagaimana merancang bangun sistem \textit{e-Learning} yang handal dengan dukungan integrasi data secara \textit{real-time} serta pengelolaan keamanan hak akses data (\textit{Row Level Security}).
+
+\section{Tujuan dan Manfaat}
+
+\subsection{Tujuan Kerja Praktik}
+
+Tujuan utama dari proyek Kerja Praktik ini meliputi beberapa poin berikut:
+\begin{enumerate}[label=\arabic*)]
+    \item Merancang bangun antarmuka \textit{Web Admin} menggunakan \textit{framework} Next.js.
+    \item Membangun aplikasi \textit{mobile} karyawan menggunakan \textit{framework} Flutter.
+    \item Mengintegrasikan sistem basis data relasional PostgreSQL menggunakan layanan \textit{backend-as-a-service} dari Supabase.
+\end{enumerate}
+
+\subsection{Manfaat Kerja Praktik}
+
+Manfaat yang diharapkan dapat diperoleh dari pelaksanaan kegiatan Kerja Praktik ini adalah:
+
+\begin{enumerate}[label=\Alph*]
+    \item \textbf{Bagi Mahasiswa:}
+    \begin{enumerate}[label=\arabic*)]
+        \item Menerapkan konsep pemrograman berorientasi objek (\textit{Object-Oriented Programming}) pada dunia industri nyata.
+        \item Mempelajari alur kerja kolaborasi tim pengembang menggunakan sistem kontrol versi (\textit{version control system}) berbasis Git.
+    \end{enumerate}
+    
+    \item \textbf{Bagi Perusahaan:}
+    \begin{enumerate}[label=\arabic*)]
+        \item Memiliki sistem pembelajaran mandiri yang dapat dimodifikasi secara fleksibel sesuai perkembangan organisasi.
+        \item Meningkatkan efektivitas pemantauan riwayat hasil kuis dan tingkat pemahaman materi karyawan secara terpusat.
+    \end{enumerate}
+\end{enumerate}
+
+\section{Metodologi Pengembangan}
+
+\subsection{Metode Rancang Bangun Perangkat Lunak}
+
+Metodologi pengembangan sistem dilakukan melalui tahapan-tahapan terstruktur guna menghindari kesalahan implementasi kode (\textit{bug}):
+\begin{enumerate}[label=\Alph*)]
+    \item \textbf{Analisis Kebutuhan:} Melakukan wawancara kebutuhan fungsional sistem bersama mentor lapangan.
+    \item \textbf{Perancangan Sistem:} Mendesain skema basis data (\textit{Entity Relationship Diagram}) dan diagram alur sistem (\textit{flowchart}).
+    \item \textbf{Implementasi Kode:} Menuliskan kode program utama secara modular agar mudah dipelihara (\textit{maintainable code}).
+\end{enumerate}
+
+Berikut adalah cuplikan kode inisialisasi basis data yang menggunakan pustaka Supabase. Kode ini telah dikonfigurasi agar memotong baris secara otomatis jika melebihi batas margin kertas:
+
+\begin{lstlisting}[language=SQL, caption={Contoh Query Inisialisasi Tabel Karyawan}]
+-- Membuat tabel profil karyawan dengan Row Level Security
+CREATE TABLE public.profiles (
+    id UUID REFERENCES auth.users NOT NULL PRIMARY KEY,
+    nip TEXT UNIQUE NOT NULL,
+    full_name TEXT NOT NULL,
+    division_id INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Mengaktifkan keamanan tingkat baris (Row Level Security)
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+\end{lstlisting}
+
+\subsection{Metode Pengujian Sistem}
+
+Pengujian fungsionalitas sistem dilakukan menggunakan metode pengujian kotak hitam (\textit{black-box testing}) untuk memastikan seluruh menu navigasi dan masukan form telah tervalidasi dengan benar.

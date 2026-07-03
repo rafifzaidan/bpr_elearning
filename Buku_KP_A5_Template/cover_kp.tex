@@ -1,0 +1,64 @@
+\begin{titlepage}
+\thispagestyle{empty}
+\definecolor{pensorange}{HTML}{E87C24}
+
+% Menggambar latar belakang oranye di bagian bawah halaman A5
+\begin{tikzpicture}[remember picture, overlay]
+    \fill[pensorange] (current page.south west) rectangle ([yshift=-4.8cm]current page.north east);
+\end{tikzpicture}
+
+% ---------------------------------------------------------
+% HEADER BAND (Bagian Putih Atas)
+% ---------------------------------------------------------
+\vspace*{-1.2cm}
+\noindent
+\begin{minipage}[c]{0.5\textwidth}
+    \includegraphics[height=2cm]{image/logo-pens.png}
+\end{minipage}%
+\begin{minipage}[c]{0.5\textwidth}
+    \raggedleft
+    {\fontsize{11pt}{13pt}\selectfont\textbf{LAPORAN KERJA PRAKTIK}\par}
+\end{minipage}
+
+\vspace{1.5cm} % Menjembatani masuk ke area oranye
+
+% ---------------------------------------------------------
+% CONTENT AREA (Bagian Oranye)
+% ---------------------------------------------------------
+\begin{center}
+    \color{white}
+    
+    % Judul Laporan - Bold Kapital Centered 13pt (A5)
+    {\fontsize{13pt}{16pt}\selectfont\textbf{RANCANG BANGUN SISTEM E-LEARNING MANDIRI\\
+    BERBASIS WEB DAN MOBILE\\
+    PADA PT. BANK PEREKONOMIAN RAKYAT JAWA TIMUR\\
+    (PT. BPR JATIM (PERSERODA))}\par}
+    \vspace{1.5cm}
+    
+    % Identitas Mahasiswa
+    {\fontsize{10pt}{12pt}\selectfont\textit{Oleh:}\par}
+    \vspace{0.3cm}
+    {\fontsize{12pt}{14pt}\selectfont
+    \setlength{\tabcolsep}{0.6cm}
+    \begin{tabular}{lc}
+        \textbf{M. Rafif Zaidan Nuhaa} & \textbf{5323600013}
+    \end{tabular}\par}
+    \vspace{2cm}
+    
+    % Identitas Dosen Pembimbing
+    {\fontsize{10pt}{12pt}\selectfont\textit{Dosen Pembimbing:}\par}
+    \vspace{0.3cm}
+    {\fontsize{12pt}{14pt}\selectfont\textbf{Sritrusta Sukaridhoto, S.T., Ph.D.}\par}
+    {\fontsize{12pt}{14pt}\selectfont\textbf{NIP. 197903062002121002}\par}
+    
+    \vfill
+    
+    % Institusi dan Tahun (Bagian bawah halaman) - 12pt
+    {\fontsize{12pt}{14pt}\selectfont
+    \textbf{PROGRAM STUDI TEKNOLOGI REKAYASA MULTIMEDIA}\\
+    \textbf{JURUSAN TEKNOLOGI MULTIMEDIA KREATIF}\\
+    \textbf{POLITEKNIK ELEKTRONIKA NEGERI SURABAYA}\\
+    \textbf{2026}\par}
+    
+\end{center}
+\end{titlepage}

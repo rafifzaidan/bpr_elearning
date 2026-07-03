@@ -1,0 +1,45 @@
+\chapter{PEMELIHARAAN SISTEM \& PENUTUP}
+
+\section{Pemeliharaan Sistem (\textit{System Maintenance})}
+Untuk memastikan platform \textit{e-Learning} kantor berjalan optimal tanpa kendala teknis, Divisi TI bekerja sama dengan PSDM perlu melakukan langkah pemeliharaan berkala sebagai berikut:
+
+\subsection{Pencadangan Data (\textit{Backup})}
+\begin{enumerate}
+    \item \textbf{Backup Database Rutin:} Cadangkan skema dan data \textit{database} Supabase PostgreSQL setiap akhir bulan demi mencegah kehilangan data nilai karyawan. Gunakan fitur \textit{pg\_dump} atau \textit{dashboard} Supabase untuk mengekspor \textit{backup} dalam format SQL.
+    \item \textbf{Backup File Storage:} Arsipkan seluruh file PDF modul pelatihan dari Supabase Storage ke media penyimpanan lokal kantor secara berkala (minimal setiap kuartal).
+    \item \textbf{Verifikasi Backup:} Lakukan uji pemulihan (\textit{restore test}) setidaknya sekali setiap semester untuk memastikan file \textit{backup} dapat dipulihkan dengan benar.
+\end{enumerate}
+
+\subsection{Pembersihan \& Optimasi}
+\begin{enumerate}
+    \item \textbf{Pembersihan Storage:} Lakukan arsip dan hapus modul-modul pelatihan lama yang sudah tidak aktif untuk menghemat kapasitas kuota Supabase Storage.
+    \item \textbf{Monitoring Performa:} Pantau penggunaan \textit{bandwidth}, jumlah \textit{request} API, dan kapasitas penyimpanan melalui \textit{dashboard} Supabase secara bulanan.
+    \item \textbf{Pembaruan Dependensi:} Perbarui versi paket \textit{library} (\textit{dependencies}) pada proyek Next.js dan Flutter secara berkala untuk menutup celah keamanan (\textit{security patches}).
+\end{enumerate}
+
+\subsection{Keamanan Akses}
+\begin{enumerate}
+    \item \textbf{Rotasi API Key:} Ganti kunci API Supabase (\textit{anon keys} dan \textit{service role keys}) secara berkala, minimal setiap 6 bulan, untuk meminimalisir risiko kebocoran.
+    \item \textbf{Audit Akses:} Tinjau log akses pengguna secara periodik untuk mendeteksi aktivitas mencurigakan atau upaya akses ilegal.
+    \item \textbf{Validasi RLS:} Pastikan aturan \textit{Row Level Security} (RLS) tetap diaktifkan pada seluruh tabel agar karyawan tidak dapat memanipulasi nilai mereka sendiri.
+    \item \textbf{Manajemen Akun:} Nonaktifkan segera akun karyawan yang sudah tidak lagi bekerja (\textit{off-boarding}) untuk mencegah akses tidak sah.
+\end{enumerate}
+
+\section{Saran Pengembangan}
+Berikut adalah beberapa saran pengembangan fitur di masa depan untuk meningkatkan fungsionalitas dan cakupan platform \textit{e-Learning}:
+
+\begin{enumerate}
+    \item \textbf{Notifikasi \textit{Push Notification}:} Mengintegrasikan layanan \textit{push notification} (Firebase Cloud Messaging / OneSignal) agar karyawan mendapatkan pengingat otomatis ketika ada modul baru atau jadwal kuis yang akan datang.
+    \item \textbf{Fitur Video Pelatihan:} Menambahkan dukungan format video (\textit{streaming}) selain PDF agar materi pelatihan lebih interaktif dan variatif.
+    \item \textbf{Sertifikat Digital:} Mengembangkan fitur penerbitan sertifikat digital otomatis bagi karyawan yang berhasil menyelesaikan seluruh modul dan lulus kuis evaluasi dengan skor di atas KKM.
+    \item \textbf{Fitur Diskusi (\textit{Forum}):} Menambahkan forum diskusi online antar karyawan dan mentor/instruktur untuk mendukung pembelajaran kolaboratif.
+    \item \textbf{Analitik Lanjutan:} Mengembangkan \textit{dashboard} analitik yang lebih mendalam dengan visualisasi tren nilai karyawan per periode, perbandingan antar divisi, dan prediksi kebutuhan pelatihan.
+    \item \textbf{Integrasi SSO (\textit{Single Sign-On}):} Mengintegrasikan autentikasi dengan sistem \textit{Single Sign-On} korporat PT. BPR Jatim agar karyawan cukup menggunakan satu kredensial untuk mengakses seluruh layanan digital perusahaan.
+\end{enumerate}
+
+\section{Kesimpulan}
+Penerapan platform \textit{e-Learning} terintegrasi di PT. BPR Jatim (Perseroda) secara signifikan memotong biaya operasional pelaksanaan pelatihan konvensional. Sistem ini mendigitalisasi distribusi materi serta penilaian kuis secara transparan dan objektif, yang mempermudah evaluasi berkala bagi pihak manajemen.
+
+Platform yang terdiri dari Portal Web Administrator berbasis Next.js dan Aplikasi Mobile berbasis Flutter ini telah berhasil menyatukan seluruh proses pelatihan karyawan ke dalam satu ekosistem digital yang terpusat, aman, dan mudah diakses dari mana saja. Penggunaan Supabase sebagai \textit{Backend as a Service} memberikan keuntungan berupa pengelolaan data yang efisien, keamanan berlapis melalui JWT dan RLS, serta skalabilitas yang dapat mengakomodasi pertumbuhan jumlah pengguna di masa depan.
+
+Diharapkan dengan adanya dokumen teknis panduan kantor ini, operasional sistem \textit{e-Learning} dapat berjalan tertib, aman, serta berkelanjutan guna mendukung penuh tercapainya kompetensi unggul seluruh karyawan PT. BPR Jatim.

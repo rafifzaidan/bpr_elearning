@@ -1,0 +1,48 @@
+\chapter{PENDAHULUAN}
+
+\section{Latar Belakang}
+Di era digitalisasi perbankan yang berkembang pesat, peningkatan kompetensi Sumber Daya Manusia (SDM) merupakan pilar utama guna menjaga daya saing, kepatuhan regulasi, dan efisiensi operasional. PT. BPR Jatim (Perseroda) berkomitmen untuk terus meningkatkan kualitas pelayanan dengan melatih karyawan di seluruh jaringan kantor cabang secara berkelanjutan.
+
+Sebelumnya, proses pelatihan karyawan dilakukan secara konvensional, yang membutuhkan koordinasi fisik, biaya perjalanan dinas yang tinggi, serta keterbatasan waktu. Selain itu, evaluasi hasil belajar dan monitoring kemajuan belajar karyawan seringkali terhambat oleh proses pencatatan manual yang lambat dan rentan kesalahan.
+
+Implementasi sistem \textit{e-Learning} di sektor perbankan terbukti mampu meningkatkan efektivitas dan efisiensi pelatihan karyawan secara signifikan, dengan mengurangi biaya operasional hingga 40\% serta memberikan fleksibilitas waktu dan tempat bagi peserta pelatihan \cite{wahyudi2021}. Selain itu, platform \textit{e-Learning} berbasis digital dapat meningkatkan retensi pengetahuan karyawan di sektor keuangan hingga 60\% dibandingkan metode pelatihan konvensional \cite{elearning_banking}.
+
+Untuk mengatasi kendala operasional pelatihan konvensional dan meningkatkan efisiensi, Divisi Pengembangan Sumber Daya Manusia (PSDM) menginisiasi pembangunan platform \textit{e-Learning} terintegrasi. Platform ini dibangun menggunakan teknologi modern berbasis \textit{cloud} yang terdiri dari dua komponen utama: Portal Web Administrator yang dikembangkan menggunakan Next.js dan React \cite{nextjs_journal}, serta Aplikasi Mobile Karyawan yang dibangun menggunakan Flutter \cite{flutter_journal}, dengan Supabase sebagai layanan \textit{Backend as a Service} (BaaS) \cite{supabase_journal}.
+
+Dokumen teknis ini dirancang sebagai panduan standar kantor yang memuat arsitektur sistem, alur proses bisnis (\textit{flowchart}), skema basis data, serta panduan operasional lengkap (\textit{user guide}) baik bagi Administrator PSDM maupun karyawan selaku pengguna aplikasi.
+
+\section{Tujuan Dokumen}
+Pembuatan dokumen ini bertujuan untuk:
+\begin{enumerate}
+    \item Menjadi dokumen referensi resmi bagi manajemen PT. BPR Jatim mengenai arsitektur teknis dan keamanan platform \textit{e-Learning}.
+    \item Memberikan panduan operasional langkah-demi-langkah bagi Admin PSDM dalam mengelola akun karyawan, modul pelatihan, bank soal, dan memantau perkembangan nilai ujian.
+    \item Memberikan panduan penggunaan aplikasi \textit{mobile} bagi karyawan untuk mengakses materi pelatihan dan mengerjakan kuis evaluasi.
+    \item Menjadi acuan teknis bagi Divisi TI dalam melakukan pemeliharaan dan pengembangan sistem di masa mendatang.
+\end{enumerate}
+
+\section{Ruang Lingkup Sistem}
+Sistem \textit{e-Learning} PT. BPR Jatim terdiri dari dua aplikasi utama yang terhubung ke satu \textit{database} terpusat:
+\begin{enumerate}
+    \item \textbf{Portal Web Administrator (Next.js \& React):} Digunakan oleh Divisi PSDM untuk mengelola modul pembelajaran (PDF), membuat dan menjadwalkan kuis evaluasi, mengelola profil karyawan, serta memantau analitik skor kelulusan secara \textit{real-time}.
+    \item \textbf{Aplikasi Mobile Karyawan (Flutter):} Digunakan oleh karyawan untuk membaca modul secara langsung (\textit{in-app PDF reader}), mengerjakan ujian kuis interaktif, melihat riwayat skor, serta mengatur keamanan akun.
+    \item \textbf{Backend \& Database (Supabase):} Menyediakan layanan autentikasi (Supabase Auth), penyimpanan file cloud (Supabase Storage), dan basis data relasional PostgreSQL sebagai fondasi seluruh fitur sistem.
+\end{enumerate}
+
+\section{Metode Pengembangan}
+Pengembangan platform \textit{e-Learning} ini mengadopsi pendekatan \textit{Software Development Life Cycle} (SDLC) model \textit{Waterfall} \cite{pressman2022} yang terdiri dari tahapan-tahapan berikut:
+\begin{enumerate}
+    \item \textbf{Analisis Kebutuhan:} Mengidentifikasi permasalahan pada sistem pelatihan konvensional dan merumuskan kebutuhan fungsional serta non-fungsional sistem baru melalui diskusi dengan pihak PSDM.
+    \item \textbf{Perancangan Sistem:} Menyusun arsitektur sistem, desain UI/UX menggunakan Figma, skema basis data (ERD), \textit{Use Case Diagram}, dan \textit{Flowchart} alur bisnis.
+    \item \textbf{Implementasi:} Membangun komponen \textit{frontend} Portal Web Admin (Next.js) dan Aplikasi Mobile (Flutter), serta mengintegrasikan keduanya dengan layanan \textit{backend} Supabase.
+    \item \textbf{Pengujian:} Melakukan pengujian fungsionalitas menggunakan metode \textit{Black-Box Testing} \cite{blackbox_journal} untuk memvalidasi seluruh fitur berjalan sesuai spesifikasi.
+    \item \textbf{Penyerahan \& Pemeliharaan:} Menyerahkan sistem beserta dokumen panduan ini kepada pihak PSDM dan Divisi TI untuk dioperasikan dan dipelihara.
+\end{enumerate}
+
+\section{Sistematika Penulisan}
+Dokumen panduan kantor ini disusun dengan sistematika penulisan sebagai berikut:
+\begin{enumerate}
+    \item \textbf{BAB I -- Pendahuluan:} Memuat latar belakang, tujuan dokumen, ruang lingkup sistem, metode pengembangan, dan sistematika penulisan.
+    \item \textbf{BAB II -- Arsitektur \& Desain Sistem:} Menjelaskan arsitektur teknologi, alur bisnis (\textit{flowchart}), \textit{Use Case Diagram}, skema basis data (ERD), dan mekanisme keamanan sistem.
+    \item \textbf{BAB III -- Panduan Operasional Pengguna (\textit{User Guide}):} Berisi langkah-langkah operasional lengkap beserta tangkapan layar (\textit{screenshot}) untuk Portal Web Administrator dan Aplikasi Mobile Karyawan.
+    \item \textbf{BAB IV -- Pemeliharaan Sistem \& Penutup:} Memuat panduan pemeliharaan berkala, saran pengembangan di masa depan, dan kesimpulan.
+\end{enumerate}

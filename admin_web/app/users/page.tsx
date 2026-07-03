@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getUsers, getDivisions, createUser, updateUser } from "@/lib/actions";
+import { getUsers, getDivisions, createUser, updateUser, deleteUser } from "@/lib/actions";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 
 export default function UsersPage() {
@@ -16,10 +16,20 @@ export default function UsersPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, action: () => void, message: string}>({isOpen: false, action: () => {}, message: ""});
+  const [notification, setNotification] = useState<{message: string, type: "success" | "error"} | null>(null);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   async function loadData() {
     setLoading(true);
@@ -53,11 +63,14 @@ export default function UsersPage() {
     setIsSubmitting(true);
     try {
       const formData = new FormData(e.currentTarget);
-      await createUser(formData);
-      setShowModal(false);
-      loadData(); // Refresh list
+      const res = await createUser(formData);
+      if (res.success) {
+        setShowModal(false);
+        setNotification({ message: "Pegawai baru berhasil ditambahkan!", type: "success" });
+        loadData(); // Refresh list
+      }
     } catch (error: any) {
-      alert(error.message);
+      setNotification({ message: error.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -68,14 +81,39 @@ export default function UsersPage() {
     setIsSubmitting(true);
     try {
       const formData = new FormData(e.currentTarget);
-      await updateUser(editUser.id, formData);
-      setEditUser(null);
-      loadData(); // Refresh list
+      const res = await updateUser(editUser.id, formData);
+      if (res.success) {
+        setEditUser(null);
+        setNotification({ message: "Data pegawai berhasil diperbarui!", type: "success" });
+        loadData(); // Refresh list
+      }
     } catch (error: any) {
-      alert(error.message);
+      setNotification({ message: error.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  async function handleDeleteUser(user: any) {
+    setConfirmDialog({
+      isOpen: true,
+      message: `Apakah Anda yakin ingin menghapus pegawai ${user.full_name}? Aksi ini tidak dapat dibatalkan.`,
+      action: async () => {
+        setConfirmDialog(prev => ({...prev, isOpen: false}));
+        setIsSubmitting(true);
+        try {
+          const res = await deleteUser(user.id);
+          if (res.success) {
+            setNotification({ message: `Pegawai ${user.full_name} berhasil dihapus.`, type: "success" });
+            loadData(); // Refresh list
+          }
+        } catch (error: any) {
+          setNotification({ message: error.message, type: "error" });
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+    });
   }
 
   function handleCloseCreateModal() {
@@ -98,6 +136,61 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
+      {/* Success/Error Modal Dialog */}
+      {notification && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Background Overlay */}
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-200" 
+            onClick={() => setNotification(null)} 
+          />
+          
+          {/* Dialog Box */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex flex-col items-center text-center space-y-4">
+              {/* Icon */}
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                notification.type === "success" ? "bg-emerald-100" : "bg-red-100"
+              }`}>
+                {notification.type === "success" ? (
+                  <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                )}
+              </div>
+              
+              {/* Text Content */}
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">
+                  {notification.type === "success" ? "Berhasil" : "Gagal"}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  {notification.message}
+                </p>
+              </div>
+              
+              {/* Actions */}
+              <div className="w-full pt-4">
+                <button
+                  type="button"
+                  onClick={() => setNotification(null)}
+                  className={`w-full px-4 py-2.5 rounded-xl text-white text-sm font-medium shadow-lg transition-all cursor-pointer ${
+                    notification.type === "success" 
+                      ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20" 
+                      : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+                  }`}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -197,10 +290,15 @@ export default function UsersPage() {
                         <span className="text-slate-400 text-xs">—</span>
                       )}
                     </td>
-                    <td className="px-6 py-3.5 text-right">
-                      <button onClick={() => setEditUser(u)} className="text-slate-400 hover:text-slate-600 cursor-pointer p-1">
+                    <td className="px-6 py-3.5 text-right space-x-2 whitespace-nowrap">
+                      <button onClick={() => setEditUser(u)} className="text-slate-400 hover:text-blue-600 cursor-pointer p-1" title="Edit Pegawai">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                        </svg>
+                      </button>
+                      <button onClick={() => handleDeleteUser(u)} className="text-slate-400 hover:text-red-600 cursor-pointer p-1" title="Hapus Pegawai">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                         </svg>
                       </button>
                     </td>
@@ -257,8 +355,8 @@ export default function UsersPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Role</label>
                   <select required name="role" className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer">
                     <option value="EMPLOYEE">EMPLOYEE</option>
-                    <option value="ADMIN">ADMIN</option>
                     <option value="LEADER">LEADER</option>
+                    <option value="ADMIN">ADMIN</option>
                   </select>
                 </div>
               </div>
@@ -343,8 +441,8 @@ export default function UsersPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Role</label>
                   <select required name="role" defaultValue={editUser.role} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer">
                     <option value="EMPLOYEE">EMPLOYEE</option>
-                    <option value="ADMIN">ADMIN</option>
                     <option value="LEADER">LEADER</option>
+                    <option value="ADMIN">ADMIN</option>
                   </select>
                 </div>
               </div>

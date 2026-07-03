@@ -21,7 +21,8 @@ class _SplashScreenState extends State<SplashScreen> {
   void _startSplashScreen() async {
     // Check if onboarding has been seen
     final prefs = await SharedPreferences.getInstance();
-    final bool _seen = (prefs.getBool('onboarding_seen') ?? false);
+    // DEV: Selalu tampilkan onboarding untuk pengujian
+    final bool _seen = false; // (prefs.getBool('onboarding_seen') ?? false);
 
     // Wait for 3 seconds
     Timer(const Duration(seconds: 3), () {

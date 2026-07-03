@@ -9,6 +9,8 @@ import 'exam_screen.dart';
 import 'exam_list_screen.dart';
 import 'module_detail_screen.dart';
 import 'quiz_review_screen.dart';
+import 'result_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -300,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ExamListScreen()),
+                    MaterialPageRoute(builder: (context) => const ResultScreen()),
                   );
                 },
                 child: Text(
@@ -325,13 +327,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           )
         else
-          SizedBox(
-            height: 215, // Ketinggian untuk menampilkan sekitar 2.5 item
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              physics: const BouncingScrollPhysics(),
-              itemCount: results.length,
-              itemBuilder: (context, index) {
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: results.length > 3 ? 3 : results.length,
+            itemBuilder: (context, index) {
                 final result = results[index];
                 return GestureDetector(
                   onTap: () {
@@ -411,7 +412,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-          ),
       ],
     );
   }
@@ -463,13 +463,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           )
         else
-          SizedBox(
-            height: 135, // Ketinggian untuk menampilkan sekitar 1.3 item
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              physics: const BouncingScrollPhysics(),
-              itemCount: suggestedExams.length,
-              itemBuilder: (context, index) {
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: suggestedExams.length > 3 ? 3 : suggestedExams.length,
+            itemBuilder: (context, index) {
                 final exam = suggestedExams[index];
                 final deadlineText = exam.isActive
                     ? 'Tenggat: ${exam.endDate.toLocal().day} ${_monthName(exam.endDate.toLocal().month)} ${exam.endDate.toLocal().year}'
@@ -560,7 +559,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-          ),
       ],
     );
   }

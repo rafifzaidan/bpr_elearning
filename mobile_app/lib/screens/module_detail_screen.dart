@@ -197,6 +197,8 @@ class ModuleDetailScreen extends StatelessWidget {
   Widget _buildExamSection(BuildContext context) {
     final examProv = Provider.of<ExamProvider>(context);
     final dateFormat = DateFormat('dd MMM yyyy, HH:mm');
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     // Filter exams that belong to this module
     final moduleExams = examProv.exams
@@ -253,9 +255,9 @@ class ModuleDetailScreen extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardTheme.color,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: isDark ? Colors.grey[800]! : Colors.grey.shade200),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.03),

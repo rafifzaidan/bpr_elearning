@@ -10,8 +10,8 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: DashboardIcon },
   { href: "/users", label: "Pegawai", icon: UsersIcon },
   { href: "/modules", label: "Modul", icon: BookIcon },
-  { href: "/exams", label: "Ujian & Bank Soal", icon: ClipboardIcon },
-  { href: "/results", label: "Hasil", icon: ChartIcon },
+  { href: "/exams", label: "Kelola Kuis & Bank Soal", icon: ClipboardIcon },
+  { href: "/results", label: "Pantau Nilai Karyawan", icon: ChartIcon },
 ];
 
 export default function Sidebar() {

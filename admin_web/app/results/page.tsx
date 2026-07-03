@@ -45,7 +45,7 @@ export default function ResultsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Hasil Ujian</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Pantau Nilai Karyawan</h1>
         <p className="text-sm text-slate-500 mt-1">
           Monitoring performa pegawai
         </p>
@@ -130,7 +130,7 @@ export default function ResultsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-3.5 text-slate-500">{r.user.nip}</td>
-                    <td className="px-6 py-3.5 text-slate-600 italic">IT Group</td> {/* TODO: Add division to join if needed */}
+                    <td className="px-6 py-3.5 text-slate-600 italic">{r.user.division?.name || "-"}</td>
                     <td className="px-6 py-3.5 text-slate-700">{r.exam.title}</td>
                     <td className="px-6 py-3.5 text-center font-bold text-slate-900">{r.score}</td>
                     <td className="px-6 py-3.5 text-center">
@@ -140,7 +140,7 @@ export default function ResultsPage() {
                     </td>
                     <td className="px-6 py-3.5 text-right text-slate-500">
                       {new Date(r.finished_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                    </td>  /
+                    </td>
                   </tr>
                 ))
               )}

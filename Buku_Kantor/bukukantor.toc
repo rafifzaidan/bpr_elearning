@@ -1,0 +1,37 @@
+\contentsline {chapter}{DAFTAR ISI}{iii}{section*.1}%
+\contentsline {chapter}{DAFTAR GAMBAR}{iv}{section*.2}%
+\contentsline {chapter}{DAFTAR TABEL}{v}{section*.3}%
+\contentsline {chapter}{\numberline {1}PENDAHULUAN}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Latar Belakang}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Tujuan Dokumen}{1}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Ruang Lingkup Sistem}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Metode Pengembangan}{2}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Sistematika Penulisan}{2}{section.1.5}%
+\contentsline {chapter}{\numberline {2}ARSITEKTUR \& DESAIN SISTEM}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Arsitektur Teknologi}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Use Case Diagram}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Flowchart Alur Bisnis Sistem}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Skema Basis Data (Entity Relationship Diagram)}{5}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Keamanan Sistem}{6}{section.2.5}%
+\contentsline {chapter}{\numberline {3}PANDUAN OPERASIONAL PENGGUNA (USER GUIDE)}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Panduan Web Administrator (Divisi PSDM)}{7}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Login Portal Web Admin}{7}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Dashboard Utama}{7}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Manajemen Data Karyawan}{8}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}Pengunggahan Modul Pembelajaran}{9}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.1.5}Pembuatan Soal \& Kuis Evaluasi}{10}{subsection.3.1.5}%
+\contentsline {subsection}{\numberline {3.1.6}Pemantauan Nilai \& Analitik}{11}{subsection.3.1.6}%
+\contentsline {section}{\numberline {3.2}Panduan Aplikasi Mobile (Karyawan)}{12}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Pemasangan Aplikasi \& Login}{12}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Dashboard \& Navigasi Aplikasi}{12}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Membaca Materi Pelatihan}{13}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Mengerjakan Kuis Evaluasi}{15}{subsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.2.5}Melihat Riwayat Nilai}{16}{subsection.3.2.5}%
+\contentsline {chapter}{\numberline {4}PEMELIHARAAN SISTEM \& PENUTUP}{18}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Pemeliharaan Sistem (\textit {System Maintenance})}{18}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Pencadangan Data (\textit {Backup})}{18}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Pembersihan \& Optimasi}{18}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Keamanan Akses}{18}{subsection.4.1.3}%
+\contentsline {section}{\numberline {4.2}Saran Pengembangan}{18}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Kesimpulan}{19}{section.4.3}%
+\contentsline {chapter}{DAFTAR PUSTAKA}{20}{section*.25}%

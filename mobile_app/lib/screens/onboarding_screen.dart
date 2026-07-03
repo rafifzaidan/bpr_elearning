@@ -36,23 +36,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // Definisi data untuk setiap slide onboarding
     final List<Map<String, String>> onboardingData = [
       {
-        'title': 'Pantau\nPerkembangan\ndengan Mudah',
-        'image': 'assets/images/onboarding1.png',
+        'title': '',
+        'image': 'assets/images/logo.png',
+        'custom_text': 'true',
         'icon': 'school', // Fallback
       },
       {
         'title': 'Materi\nPembelajaran\nInteraktif',
-        'image': 'assets/images/onboarding2.png',
+        'image': 'assets/images/onboarding2.jpg',
         'icon': 'menu_book', // Fallback
       },
       {
         'title': 'Ujian Kompetensi\nSecara Online\n& Real-time',
-        'image': 'assets/images/onboarding3.png',
+        'image': 'assets/images/onboarding3.jpg',
         'icon': 'quiz', // Fallback
       },
       {
         'title': 'Mulai Tingkatkan\nKapasitas Diri\nSekarang!',
-        'image': 'assets/images/onboarding4.png',
+        'image': 'assets/images/onboarding4.jpg',
         'icon': 'trending_up', // Fallback
       },
     ];
@@ -112,16 +113,50 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ),
                           ),
                         ),
-                        // Title
-                        Text(
-                          data['title']!,
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            height: 1.2,
-                            color: Color(0xFF1E293B),
+                        // Title or Image2 or Custom Text
+                        if (data.containsKey('custom_text') && data['custom_text'] == 'true')
+                          Center(
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'PT. BPR JATIM (PERSERODA)',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF434A99),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const Text(
+                                  'BANK UMKM JAWA TIMUR',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF2B318B),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else if (data.containsKey('image2') && data['image2'] != null)
+                          Center(
+                            child: Image.asset(
+                              data['image2']!,
+                              fit: BoxFit.contain,
+                              width: double.infinity,
+                            ),
+                          )
+                        else if (data['title']!.isNotEmpty)
+                          Text(
+                            data['title']!,
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
+                              color: Color(0xFF1E293B),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   );

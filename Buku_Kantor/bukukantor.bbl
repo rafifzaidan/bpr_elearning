@@ -1,0 +1,268 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{wahyudi2021}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=a5074569246096388b7cfc4acd592e7f}{%
+           family={Wahyudi},
+           familyi={W\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod}}}%
+        {{hash=64bc826102b6ace8df8486b7d1ade4b7}{%
+           family={Nugroho},
+           familyi={N\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{121e84774f7237c14e956a6f7a02c0fb}
+      \strng{fullhash}{121e84774f7237c14e956a6f7a02c0fb}
+      \strng{fullhashraw}{121e84774f7237c14e956a6f7a02c0fb}
+      \strng{bibnamehash}{121e84774f7237c14e956a6f7a02c0fb}
+      \strng{authorbibnamehash}{121e84774f7237c14e956a6f7a02c0fb}
+      \strng{authornamehash}{121e84774f7237c14e956a6f7a02c0fb}
+      \strng{authorfullhash}{121e84774f7237c14e956a6f7a02c0fb}
+      \strng{authorfullhashraw}{121e84774f7237c14e956a6f7a02c0fb}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Jurnal Teknologi Informasi dan Ilmu Komputer (JTIIK)}
+      \field{number}{3}
+      \field{title}{Implementasi Sistem E-Learning untuk Peningkatan Kompetensi Karyawan pada Sektor Perbankan}
+      \field{volume}{8}
+      \field{year}{2021}
+      \field{pages}{521\bibrangedash 530}
+      \range{pages}{10}
+    \endentry
+    \entry{elearning_banking}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=a15e77dcc3f611b78f2e5538d23e6566}{%
+           family={Dahlstrom},
+           familyi={D\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod}}}%
+        {{hash=da2fb74cc69d3627b30c2e1cef28e6a5}{%
+           family={Bichsel},
+           familyi={B\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \strng{fullhash}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \strng{fullhashraw}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \strng{bibnamehash}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \strng{authorbibnamehash}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \strng{authornamehash}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \strng{authorfullhash}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \strng{authorfullhashraw}{4b66548c7a2ea578724ea867f3dfc8ab}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{EDUCAUSE Center for Analysis and Research}
+      \field{title}{E-Learning in the Banking Industry: Challenges and Best Practices for Employee Training}
+      \field{year}{2019}
+      \field{pages}{1\bibrangedash 24}
+      \range{pages}{24}
+    \endentry
+    \entry{nextjs_journal}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=2408d73988ed8b41918bc452726792e5}{%
+           family={Aggarwal},
+           familyi={A\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{2408d73988ed8b41918bc452726792e5}
+      \strng{fullhash}{2408d73988ed8b41918bc452726792e5}
+      \strng{fullhashraw}{2408d73988ed8b41918bc452726792e5}
+      \strng{bibnamehash}{2408d73988ed8b41918bc452726792e5}
+      \strng{authorbibnamehash}{2408d73988ed8b41918bc452726792e5}
+      \strng{authornamehash}{2408d73988ed8b41918bc452726792e5}
+      \strng{authorfullhash}{2408d73988ed8b41918bc452726792e5}
+      \strng{authorfullhashraw}{2408d73988ed8b41918bc452726792e5}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Research Journal of Engineering and Technology (IRJET)}
+      \field{number}{1}
+      \field{title}{Modern Web-Development using React JS}
+      \field{volume}{5}
+      \field{year}{2018}
+      \field{pages}{133\bibrangedash 137}
+      \range{pages}{5}
+    \endentry
+    \entry{flutter_journal}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=6b1da9f8985789afeb993c58dfa1c05b}{%
+           family={Wu},
+           familyi={W\bibinitperiod},
+           given={W.},
+           giveni={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{6b1da9f8985789afeb993c58dfa1c05b}
+      \strng{fullhash}{6b1da9f8985789afeb993c58dfa1c05b}
+      \strng{fullhashraw}{6b1da9f8985789afeb993c58dfa1c05b}
+      \strng{bibnamehash}{6b1da9f8985789afeb993c58dfa1c05b}
+      \strng{authorbibnamehash}{6b1da9f8985789afeb993c58dfa1c05b}
+      \strng{authornamehash}{6b1da9f8985789afeb993c58dfa1c05b}
+      \strng{authorfullhash}{6b1da9f8985789afeb993c58dfa1c05b}
+      \strng{authorfullhashraw}{6b1da9f8985789afeb993c58dfa1c05b}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Science and Technology Publications}
+      \field{title}{React Native vs Flutter, Cross-Platform Mobile Application Frameworks}
+      \field{year}{2018}
+      \field{pages}{1\bibrangedash 8}
+      \range{pages}{8}
+    \endentry
+    \entry{supabase_journal}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=b29fc2d6ad861b799a4c14ca781c2f46}{%
+           family={Copeland},
+           familyi={C\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \strng{fullhash}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \strng{fullhashraw}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \strng{bibnamehash}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \strng{authorbibnamehash}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \strng{authornamehash}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \strng{authorfullhash}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \strng{authorfullhashraw}{b29fc2d6ad861b799a4c14ca781c2f46}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Cloud Computing and Artificial Intelligence}
+      \field{number}{1}
+      \field{title}{Backend as a Service: A Comprehensive Review of Firebase and its Open-Source Alternatives}
+      \field{volume}{2}
+      \field{year}{2023}
+      \field{pages}{45\bibrangedash 58}
+      \range{pages}{14}
+    \endentry
+    \entry{pressman2022}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=b92a423bae31729e13272e7637eee19d}{%
+           family={Pressman},
+           familyi={P\bibinitperiod},
+           given={R.\bibnamedelimi S.},
+           giveni={R\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=58b5aa84bc2b3d913bfa3b12ef246c0a}{%
+           family={Maxim},
+           familyi={M\bibinitperiod},
+           given={B.\bibnamedelimi R.},
+           giveni={B\bibinitperiod\bibinitdelim R\bibinitperiod}}}%
+      }
+      \strng{namehash}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \strng{fullhash}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \strng{fullhashraw}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \strng{bibnamehash}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \strng{authorbibnamehash}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \strng{authornamehash}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \strng{authorfullhash}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \strng{authorfullhashraw}{ce4cc2afd2843d7b5e366c84d6fc68db}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{9}
+      \field{journaltitle}{McGraw-Hill Education}
+      \field{title}{Software Engineering: A Practitioner's Approach}
+      \field{year}{2020}
+    \endentry
+    \entry{blackbox_journal}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=d459009ba4a2495a37e8b6021f467a3a}{%
+           family={Nidhra},
+           familyi={N\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+        {{hash=b0ba134c3097dcab2de75a762e176f95}{%
+           family={Dondeti},
+           familyi={D\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{5b476b787447694f8b612d556152e837}
+      \strng{fullhash}{5b476b787447694f8b612d556152e837}
+      \strng{fullhashraw}{5b476b787447694f8b612d556152e837}
+      \strng{bibnamehash}{5b476b787447694f8b612d556152e837}
+      \strng{authorbibnamehash}{5b476b787447694f8b612d556152e837}
+      \strng{authornamehash}{5b476b787447694f8b612d556152e837}
+      \strng{authorfullhash}{5b476b787447694f8b612d556152e837}
+      \strng{authorfullhashraw}{5b476b787447694f8b612d556152e837}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Embedded Systems and Applications (IJESA)}
+      \field{number}{2}
+      \field{title}{Black Box and White Box Testing Techniques -- A Literature Review}
+      \field{volume}{2}
+      \field{year}{2012}
+      \field{pages}{29\bibrangedash 50}
+      \range{pages}{22}
+    \endentry
+    \entry{jwt_security}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=3656094aa90ce6b5927293e625dedee3}{%
+           family={Jones},
+           familyi={J\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod}}}%
+        {{hash=3ac7ec83304c92610359a406f07ad45a}{%
+           family={Bradley},
+           familyi={B\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod}}}%
+        {{hash=2764fe7207c045fdc85a76e2d51203a3}{%
+           family={Sakimura},
+           familyi={S\bibinitperiod},
+           given={N.},
+           giveni={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{5b3ff80030418207cdd5756912287da3}
+      \strng{fullhash}{5b3ff80030418207cdd5756912287da3}
+      \strng{fullhashraw}{5b3ff80030418207cdd5756912287da3}
+      \strng{bibnamehash}{5b3ff80030418207cdd5756912287da3}
+      \strng{authorbibnamehash}{5b3ff80030418207cdd5756912287da3}
+      \strng{authornamehash}{5b3ff80030418207cdd5756912287da3}
+      \strng{authorfullhash}{5b3ff80030418207cdd5756912287da3}
+      \strng{authorfullhashraw}{5b3ff80030418207cdd5756912287da3}
+      \field{sortinit}{8}
+      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Internet Engineering Task Force (IETF)}
+      \field{title}{JSON Web Token (JWT) -- RFC 7519}
+      \field{year}{2015}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

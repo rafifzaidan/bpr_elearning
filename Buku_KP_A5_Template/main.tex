@@ -1,0 +1,123 @@
+\documentclass[11pt, a5paper, twoside, openright]{report}
+
+% =========================================================
+% PACKAGE YANG DIWAJIBKAN
+% =========================================================
+% 1. Margin Halaman Buku A5 Twoside
+\usepackage[
+    a5paper,
+    inner=2.5cm,
+    outer=2cm,
+    top=2.5cm,
+    bottom=2cm,
+    includefoot,
+    headheight=15pt,
+    footskip=0.8cm
+]{geometry}
+
+\usepackage{mathptmx} % Font utama: Times New Roman (alternatif bebas: times)
+\usepackage{setspace}
+\onehalfspacing % Spasi 1.5 (biasa digunakan untuk dokumen A4)
+
+\usepackage{graphicx} % Dukungan gambar
+\usepackage{float}    % Peletakan float gambar/tabel (opsi H)
+\usepackage{indentfirst} % Indentasi paragraf pertama
+\usepackage{tocloft}   % Kustomisasi daftar isi
+\usepackage{hyperref}  % Tautan navigasi PDF
+\usepackage{etoolbox}  % Pemrograman makro LaTeX
+
+% 2. Mencegah Teks Melebihi Batas Margin (Overfull Box)
+\usepackage{microtype} % Optimasi spasi antar-kata secara cerdas
+\usepackage{listings}  % Menampilkan potongan kode pemrograman secara rapi
+\usepackage{longtable} % Tabel multi-halaman
+\usepackage{booktabs}  % Desain tabel profesional
+\usepackage{array}     % Formatting tabel lanjutan
+\usepackage{xcolor}    % Warna untuk penyorotan kode/tabel
+\usepackage{tikz}      % Menggambar grafik/elemen halaman cover
+
+% Penyetelan agar listings memotong baris secara otomatis jika terlalu panjang
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    breakatwhitespace=false,
+    breakautoindent=true,
+    frame=single,
+    showstringspaces=false,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{purple}
+}
+
+% 3. Paket Enumitem untuk Kustomisasi Tingkat List/Poin
+\usepackage{enumitem}
+% Mengatur jarak default agar lebih rapat dan teratur
+\setlist{itemsep=2pt, parsep=0pt, topsep=4pt, partopsep=0pt}
+
+% 4. Penomoran Bab, Section, dan Subsection
+\setcounter{secnumdepth}{3} % Penomoran tingkat bab hingga subsection/subsubsection
+\setcounter{tocdepth}{2}    % Daftar isi menampilkan hingga subsection
+
+% 5. Header & Footer Halaman (Twoside Page Numbers)
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % Bersihkan semua header/footer default
+\fancyfoot[LE,RO]{\thepage} % Nomor halaman di Kiri untuk halaman Genap (Even), Kanan untuk halaman Ganjil (Odd)
+\renewcommand{\headrulewidth}{0pt} % Hapus garis atas header
+\renewcommand{\footrulewidth}{0pt} % Hapus garis bawah footer
+
+% Menyetel halaman pembuka bab agar tetap menggunakan gaya penomoran yang konsisten
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[LE,RO]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+}
+
+% 6. Penanganan Halaman Kosong pada Twoside
+\makeatletter
+\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
+  \vspace*{\fill}
+  \begin{center}
+    \textit{Halaman ini sengaja dikosongkan}
+  \end{center}
+  \vspace{\fill}
+  \thispagestyle{empty}
+  \newpage
+  \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+\makeatother
+
+% =========================================================
+% DOKUMEN UTAMA
+% =========================================================
+\begin{document}
+
+% --- HALAMAN PRELIMINARIES ---
+\pagenumbering{roman} % Penomoran romawi kecil untuk bagian awal
+
+\input{cover_kp} % Halaman i: Cover Luar
+
+\cleardoublepage
+\input{lembar_pengesahan_dosen_final} % Halaman iii: Lembar Pengesahan Final
+
+\cleardoublepage
+\input{abstrak} % Halaman v: Abstrak Bahasa Indonesia (1 Halaman)
+
+\cleardoublepage
+\input{katapengantar} % Halaman vii: Kata Pengantar (1 Halaman)
+
+% --- DAFTAR ISI, GAMBAR, TABEL ---
+\cleardoublepage
+\tableofcontents
+
+\cleardoublepage
+\listoffigures
+
+\cleardoublepage
+\listoftables
+
+% --- KONTEN UTAMA ---
+\cleardoublepage
+\pagenumbering{arabic} % Penomoran angka Arab mulai dari Bab I halaman 1
+
+\input{bab1} % Bab I Pendahuluan (Contoh Struktur)
+
+\end{document}

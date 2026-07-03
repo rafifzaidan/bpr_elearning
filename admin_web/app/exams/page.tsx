@@ -36,6 +36,8 @@ export default function ExamsPage() {
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [editQuestion, setEditQuestion] = useState<any>(null);
 
+  const [notification, setNotification] = useState<{message: string, type: "success" | "error"} | null>(null);
+
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     action: () => void;
@@ -56,6 +58,15 @@ export default function ExamsPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   async function loadData() {
     setLoading(true);
@@ -95,9 +106,10 @@ export default function ExamsPage() {
       formData.append("moduleId", String(selectedModuleId));
       await createExam(formData);
       setShowExamModal(false);
+      setNotification({ message: "Jadwal ujian baru berhasil dibuat!", type: "success" });
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      setNotification({ message: error.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -111,9 +123,10 @@ export default function ExamsPage() {
       formData.append("moduleId", String(selectedModuleId));
       await updateExam(editExam.id, formData);
       setEditExam(null);
+      setNotification({ message: "Jadwal ujian berhasil diperbarui!", type: "success" });
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      setNotification({ message: error.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -128,9 +141,10 @@ export default function ExamsPage() {
       formData.append("moduleId", String(selectedModuleId));
       await createQuestion(formData);
       setShowQuestionModal(false);
+      setNotification({ message: "Pertanyaan baru berhasil ditambahkan!", type: "success" });
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      setNotification({ message: error.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -144,9 +158,10 @@ export default function ExamsPage() {
       formData.append("moduleId", String(selectedModuleId));
       await updateQuestion(editQuestion.id, formData);
       setEditQuestion(null);
+      setNotification({ message: "Pertanyaan berhasil diperbarui!", type: "success" });
       loadData();
     } catch (error: any) {
-      alert(error.message);
+      setNotification({ message: error.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }
@@ -193,9 +208,64 @@ export default function ExamsPage() {
   if (selectedModuleId === null) {
     return (
       <div className="space-y-6">
+        {/* Success/Error Modal Dialog */}
+        {notification && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Background Overlay */}
+            <div 
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-200" 
+              onClick={() => setNotification(null)} 
+            />
+            
+            {/* Dialog Box */}
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 overflow-hidden animate-in fade-in zoom-in duration-200">
+              <div className="flex flex-col items-center text-center space-y-4">
+                {/* Icon */}
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                  notification.type === "success" ? "bg-emerald-100" : "bg-red-100"
+                }`}>
+                  {notification.type === "success" ? (
+                    <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  )}
+                </div>
+                
+                {/* Text Content */}
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">
+                    {notification.type === "success" ? "Berhasil" : "Gagal"}
+                  </h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    {notification.message}
+                  </p>
+                </div>
+                
+                {/* Actions */}
+                <div className="w-full pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setNotification(null)}
+                    className={`w-full px-4 py-2.5 rounded-xl text-white text-sm font-medium shadow-lg transition-all cursor-pointer ${
+                      notification.type === "success" 
+                        ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20" 
+                        : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+                    }`}
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Ujian & Bank Soal</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Kelola Kuis & Bank Soal</h1>
           <p className="text-sm text-slate-500 mt-1">
             Pilih modul pelatihan di bawah ini untuk mengatur jadwal ujian dan daftar pertanyaan.
           </p>
@@ -278,6 +348,61 @@ export default function ExamsPage() {
   // RENDER SELECTED MODULE DETAIL MANAGER (EXAMS + BANK SOAL)
   return (
     <div className="space-y-6">
+      {/* Success/Error Modal Dialog */}
+      {notification && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Background Overlay */}
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-200" 
+            onClick={() => setNotification(null)} 
+          />
+          
+          {/* Dialog Box */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="flex flex-col items-center text-center space-y-4">
+              {/* Icon */}
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+                notification.type === "success" ? "bg-emerald-100" : "bg-red-100"
+              }`}>
+                {notification.type === "success" ? (
+                  <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                )}
+              </div>
+              
+              {/* Text Content */}
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">
+                  {notification.type === "success" ? "Berhasil" : "Gagal"}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  {notification.message}
+                </p>
+              </div>
+              
+              {/* Actions */}
+              <div className="w-full pt-4">
+                <button
+                  type="button"
+                  onClick={() => setNotification(null)}
+                  className={`w-full px-4 py-2.5 rounded-xl text-white text-sm font-medium shadow-lg transition-all cursor-pointer ${
+                    notification.type === "success" 
+                      ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20" 
+                      : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+                  }`}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Breadcrumbs & Header */}
       <div>
         <button
@@ -386,9 +511,10 @@ export default function ExamsPage() {
                               action: async () => {
                                 try {
                                   await deleteExam(e.id);
+                                  setNotification({ message: `Jadwal ujian "${e.title}" berhasil dihapus!`, type: "success" });
                                   loadData();
                                 } catch (err: any) {
-                                  alert(err.message);
+                                  setNotification({ message: err.message, type: "error" });
                                 } finally {
                                   setConfirmDialog(prev => ({...prev, isOpen: false}));
                                 }
@@ -502,9 +628,10 @@ export default function ExamsPage() {
                                 action: async () => {
                                   try {
                                     await deleteQuestion(q.id);
+                                    setNotification({ message: "Pertanyaan berhasil dihapus!", type: "success" });
                                     loadData();
                                   } catch (err: any) {
-                                    alert(err.message);
+                                    setNotification({ message: err.message, type: "error" });
                                   } finally {
                                     setConfirmDialog(prev => ({...prev, isOpen: false}));
                                   }
