@@ -38,8 +38,9 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _submit() async {
     if (_nipCtrl.text.trim().isEmpty || _passwordCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('NIP dan Password tidak boleh kosong')),
+      _showCustomDialog(
+        title: 'Validasi',
+        message: 'NIP dan Password tidak boleh kosong',
       );
       return;
     }
@@ -59,12 +60,9 @@ class _LoginScreenState extends State<LoginScreen>
         if (msg.contains('Invalid login credentials')) {
           msg = 'NIP atau password salah. Silakan coba lagi.';
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(msg),
-            backgroundColor: Colors.red[700],
-            behavior: SnackBarBehavior.floating,
-          ),
+        _showCustomDialog(
+          title: 'Gagal Masuk',
+          message: msg,
         );
       }
     }
@@ -105,14 +103,17 @@ class _LoginScreenState extends State<LoginScreen>
               try {
                 await Provider.of<AuthProvider>(context, listen: false).sendPasswordResetEmail(emailCtrl.text);
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Link reset password telah dikirim ke email Anda.')),
+                  _showCustomDialog(
+                    title: 'Berhasil',
+                    message: 'Link reset password telah dikirim ke email Anda.',
+                    isSuccess: true,
                   );
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Gagal mengirim email: ${e.toString()}'), backgroundColor: Colors.red),
+                  _showCustomDialog(
+                    title: 'Gagal',
+                    message: 'Gagal mengirim email: ${e.toString().replaceAll('Exception: ', '')}',
                   );
                 }
               }
@@ -121,6 +122,103 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ],
       ),
+    );
+  }
+
+  void _showCustomDialog({
+    required String title,
+    required String message,
+    bool isSuccess = false,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.0),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Top Icon in circular background
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isSuccess ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7), // light green or light amber/yellow
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isSuccess ? Icons.check_rounded : Icons.warning_amber_rounded,
+                    color: isSuccess ? const Color(0xFF16A34A) : const Color(0xFFEA580C), // green or orange
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Title
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Message Content
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF64748B),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                // Button
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      backgroundColor: isSuccess ? const Color(0xFF16A34A) : const Color(0xFFEA580C), // green or BPR Orange
+                    ),
+                    child: const Text(
+                      'Oke',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -356,8 +454,10 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           GestureDetector(
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Silakan hubungi tim HR/TI BPR Jatim.')),
+                              _showCustomDialog(
+                                title: 'Info Akses',
+                                message: 'Silakan hubungi tim HR/TI BPR Jatim.',
+                                isSuccess: true,
                               );
                             },
                             child: const Text(
