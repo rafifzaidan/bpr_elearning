@@ -11,10 +11,10 @@ let mockUsers: any[] = (globalThis as any).mockUsers || [
   {
     id: "admin-id",
     nip: "9999999999",
-    full_name: "Administrator Utama",
+    full_name: "Super Admin",
     email: "admin@bpr.com",
     role: "ADMIN",
-    division_id: 1,
+    division_id: 2,
     division: { name: "Teknologi Informasi" },
     created_at: new Date()
   },
@@ -22,9 +22,9 @@ let mockUsers: any[] = (globalThis as any).mockUsers || [
     id: "1",
     nip: "5323600013",
     full_name: "M. Rafif Zaidan Nuhaa",
-    email: "rafifzaidan07@gmail.com",
+    email: "rafifsd25@gmail.com",
     role: "ADMIN",
-    division_id: 1,
+    division_id: 2,
     division: { name: "Teknologi Informasi" },
     created_at: new Date()
   },
@@ -32,9 +32,9 @@ let mockUsers: any[] = (globalThis as any).mockUsers || [
     id: "2",
     nip: "5323600011",
     full_name: "M. Hafizh Georiza",
-    email: "hafizh@bpr.com",
+    email: "rafifzaidan07@gmail.com",
     role: "EMPLOYEE",
-    division_id: 1,
+    division_id: 2,
     division: { name: "Teknologi Informasi" },
     created_at: new Date()
   }
@@ -42,10 +42,8 @@ let mockUsers: any[] = (globalThis as any).mockUsers || [
 (globalThis as any).mockUsers = mockUsers;
 
 let mockDivisions: any[] = [
-  { id: 1, name: "Teknologi Informasi" },
-  { id: 2, name: "Sumber Daya Manusia (SDM)" },
-  { id: 3, name: "Pemasaran" },
-  { id: 4, name: "Operasional" }
+  { id: 1, name: "Akuntansi" },
+  { id: 2, name: "Teknologi Informasi" }
 ];
 
 let mockModules: any[] = (globalThis as any).mockModules || [
@@ -64,7 +62,7 @@ let mockModules: any[] = (globalThis as any).mockModules || [
     id: 2,
     title: "Standard Operational Procedure Teller",
     description: "Panduan praktis SOP layanan teller dan kepuabah.",
-    division_ids: [4],
+    division_ids: [2],
     file_type: "pdf",
     file_url: "mock-pdf-2.pdf",
     image_url: null,
@@ -811,7 +809,9 @@ export async function getResults() {
 
 export async function getDashboardStats() {
   try {
-    const totalUsers = await prisma.user.count();
+    const totalUsers = await prisma.user.count({
+      where: { role: { not: "ADMIN" } }
+    });
     const totalModules = await prisma.module.count();
     const activeExams = await prisma.exam.count({
       where: {
@@ -823,19 +823,19 @@ export async function getDashboardStats() {
     });
     const avgScore = await prisma.result.aggregate({ _avg: { score: true } });
 
-    // Ambil distribusi user per divisi
+    // Ambil distribusi user per divisi (hanya menghitung non-ADMIN)
     const divisions = await prisma.division.findMany({
-      select: {
-        name: true,
-        _count: {
-          select: { users: true }
+      include: {
+        users: {
+          where: { role: { not: "ADMIN" } },
+          select: { id: true }
         }
       }
     });
 
     const divisionDistribution = divisions.map(d => ({
       name: d.name,
-      value: d._count.users
+      value: d.users.length
     }));
 
     return {
@@ -847,17 +847,29 @@ export async function getDashboardStats() {
     };
   } catch (err: any) {
     console.error("Database connection failed in getDashboardStats, returning mock data:", err.message);
+
+    const nonAdminUsers = mockUsers.filter((u: any) => u.role !== "ADMIN");
+    const totalUsers = nonAdminUsers.length;
+    const totalModules = mockModules.length;
+    const activeExams = mockExams.length;
+
+    // Hitung distribusi divisi secara dinamis dari mock data
+    const divisionDistribution = mockDivisions.map((d: any) => {
+      const count = mockUsers.filter(
+        (u: any) => u.role !== "ADMIN" && (u.division_id === d.id || u.division?.name === d.name)
+      ).length;
+      return {
+        name: d.name,
+        value: count
+      };
+    });
+
     return {
-      totalUsers: 25,
-      totalModules: 12,
-      activeExams: 4,
-      avgScore: "82.5",
-      divisionDistribution: [
-        { name: "Teknologi Informasi", value: 10 },
-        { name: "SDM", value: 5 },
-        { name: "Pemasaran", value: 6 },
-        { name: "Kredit", value: 4 }
-      ]
+      totalUsers,
+      totalModules,
+      activeExams,
+      avgScore: "0.0",
+      divisionDistribution,
     };
   }
 }

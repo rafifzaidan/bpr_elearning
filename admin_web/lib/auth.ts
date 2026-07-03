@@ -20,7 +20,7 @@ export async function login(formData: FormData) {
     {
       id: "admin-id",
       nip: "9999999999",
-      full_name: "Administrator Utama",
+      full_name: "Super Admin",
       email: "admin@bpr.com",
       role: "ADMIN"
     },
@@ -28,7 +28,7 @@ export async function login(formData: FormData) {
       id: "1",
       nip: "5323600013",
       full_name: "M. Rafif Zaidan Nuhaa",
-      email: "rafifzaidan07@gmail.com",
+      email: "rafifsd25@gmail.com",
       role: "ADMIN"
     }
   ];
