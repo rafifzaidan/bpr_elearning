@@ -278,6 +278,51 @@ let mockExams: any[] = (globalThis as any).mockExams || [
 ];
 (globalThis as any).mockExams = mockExams;
 
+function syncUetMockData() {
+  const uetModule = mockModules.find(
+    (m: any) => m.title.toLowerCase().includes("test uet") || m.title.toLowerCase().includes("uet test") || m.title.toLowerCase() === "uet"
+  );
+
+  if (uetModule) {
+    const targetModuleId = uetModule.id;
+    if (targetModuleId !== 3) {
+      // 1. Check and clone mock exam
+      const hasExam = mockExams.some((e: any) => e.module_id === targetModuleId);
+      if (!hasExam) {
+        const sourceExam = mockExams.find((e: any) => e.module_id === 3);
+        if (sourceExam) {
+          mockExams.push({
+            ...sourceExam,
+            id: Date.now() + 1,
+            module_id: targetModuleId,
+            module: { title: uetModule.title }
+          });
+          (globalThis as any).mockExams = mockExams;
+        }
+      }
+
+      // 2. Check and clone mock questions
+      const hasQuestions = mockQuestions.some((q: any) => q.module_id === targetModuleId);
+      if (!hasQuestions) {
+        const sourceQuestions = mockQuestions.filter((q: any) => q.module_id === 3);
+        sourceQuestions.forEach((q: any, index: number) => {
+          mockQuestions.push({
+            ...q,
+            id: Date.now() + 100 + index,
+            module_id: targetModuleId,
+            module: { title: uetModule.title }
+          });
+        });
+        (globalThis as any).mockQuestions = mockQuestions;
+        
+        uetModule._count = uetModule._count || {};
+        uetModule._count.questions = sourceQuestions.length;
+        (globalThis as any).mockModules = mockModules;
+      }
+    }
+  }
+}
+
 export async function getUsers() {
   try {
     // Menggunakan raw query untuk bypass cache Prisma Client di Next.js (agar tidak perlu restart)
@@ -449,6 +494,7 @@ export async function getModules() {
     });
   } catch (err: any) {
     console.error("Database connection failed in getModules, returning mock data:", err.message);
+    syncUetMockData();
     return mockModules;
   }
 }
@@ -637,6 +683,7 @@ export async function getQuestions(moduleId?: number) {
     });
   } catch (err: any) {
     console.error("Database connection failed in getQuestions, returning mock data:", err.message);
+    syncUetMockData();
     const filtered = moduleId ? mockQuestions.filter(q => q.module_id === moduleId) : mockQuestions;
     return filtered;
   }
@@ -825,6 +872,7 @@ export async function getExams() {
     });
   } catch (err: any) {
     console.error("Database connection failed in getExams, returning mock data:", err.message);
+    syncUetMockData();
     return mockExams;
   }
 }
