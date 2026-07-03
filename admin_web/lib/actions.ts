@@ -68,6 +68,17 @@ let mockModules: any[] = (globalThis as any).mockModules || [
     image_url: null,
     created_at: new Date(),
     _count: { questions: 0 }
+  },
+  {
+    id: 3,
+    title: "Modul Pengujian UET (User Evaluation Test)",
+    description: "Modul materi khusus untuk pengujian fungsi kuis, durasi waktu, retake, dan pembaca modul pada e-Learning.",
+    division_ids: [1, 2],
+    file_type: "pdf",
+    file_url: "mock-pdf.pdf",
+    image_url: null,
+    created_at: new Date(),
+    _count: { questions: 10 }
   }
 ];
 (globalThis as any).mockModules = mockModules;
@@ -87,6 +98,156 @@ let mockQuestions: any[] = (globalThis as any).mockQuestions || [
       D: "Role Level Schema"
     },
     module: { title: "Pengenalan Sistem Keamanan IT Bank" }
+  },
+  {
+    id: 101,
+    module_id: 3,
+    set_name: "Default",
+    text: "Apa tujuan utama dari dilaksanakannya User Evaluation Test (UET) pada aplikasi?",
+    weight: 1,
+    correct_ans: "A",
+    options: {
+      A: "Mengevaluasi fungsi dan antarmuka aplikasi",
+      B: "Menguji kecepatan download database",
+      C: "Menghitung kapasitas penyimpanan server",
+      D: "Menilai performa hardware laptop"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 102,
+    module_id: 3,
+    set_name: "Default",
+    text: "Di bawah ini yang merupakan hak akses dari administrator pada Portal Web adalah...",
+    weight: 1,
+    correct_ans: "B",
+    options: {
+      A: "Mengerjakan kuis evaluasi",
+      B: "Mengelola materi, pegawai, kuis, dan pantau nilai",
+      C: "Membaca modul lewat mobile",
+      D: "Mengubah logo instansi BPR"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 103,
+    module_id: 3,
+    set_name: "Default",
+    text: "Bagaimana cara kerja fitur offline/bypass pada aplikasi saat Supabase terputus?",
+    weight: 1,
+    correct_ans: "B",
+    options: {
+      A: "Aplikasi langsung force close",
+      B: "Aplikasi menggunakan simulasi memori lokal (mock state)",
+      C: "Data tidak bisa disimpan sama sekali",
+      D: "Browser otomatis me-restart laptop"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 104,
+    module_id: 3,
+    set_name: "Default",
+    text: "Berapakah durasi pengerjaan yang diset pada kuis pengujian UET ini?",
+    weight: 1,
+    correct_ans: "C",
+    options: {
+      A: "60 menit",
+      B: "45 menit",
+      C: "15 menit",
+      D: "30 menit"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 105,
+    module_id: 3,
+    set_name: "Default",
+    text: "Jika opsi 'Bisa dikerjakan ulang' diaktifkan oleh admin, apa yang bisa dilakukan karyawan?",
+    weight: 1,
+    correct_ans: "B",
+    options: {
+      A: "Karyawan tidak bisa mengikuti kuis lagi",
+      B: "Karyawan dapat mengulang kuis untuk memperbaiki nilai",
+      C: "Ujian otomatis terhapus",
+      D: "Akun karyawan otomatis terblokir"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 106,
+    module_id: 3,
+    set_name: "Default",
+    text: "Divisi apa saja yang ditugaskan untuk mengikuti Modul Pengujian UET ini?",
+    weight: 1,
+    correct_ans: "A",
+    options: {
+      A: "Akuntansi dan Teknologi Informasi",
+      B: "Hanya Pemasaran",
+      C: "Operasional dan SDM",
+      D: "Seluruh divisi BPR kecuali TI"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 107,
+    module_id: 3,
+    set_name: "Default",
+    text: "Apa format file materi pembelajaran yang didukung untuk diunggah pada portal?",
+    weight: 1,
+    correct_ans: "B",
+    options: {
+      A: "DOCX dan XLSX",
+      B: "PDF dan Video (MP4)",
+      C: "ZIP dan RAR",
+      D: "PPTX saja"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 108,
+    module_id: 3,
+    set_name: "Default",
+    text: "Fungsi utama dari menu 'Pantau Nilai Karyawan' bagi admin PSDM adalah...",
+    weight: 1,
+    correct_ans: "B",
+    options: {
+      A: "Mengubah jawaban kuis karyawan",
+      B: "Memonitor skor, status kelulusan, dan mengekspor laporan nilai",
+      C: "Mengirim email spam ke karyawan",
+      D: "Menghapus akun karyawan secara acak"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 109,
+    module_id: 3,
+    set_name: "Default",
+    text: "Di bawah ini, manakah password pengujian default yang digunakan untuk bypass login offline?",
+    weight: 1,
+    correct_ans: "B",
+    options: {
+      A: "admin123",
+      B: "AdminPassword123!",
+      C: "passwordku",
+      D: "BPRJatim2026"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
+  },
+  {
+    id: 110,
+    module_id: 3,
+    set_name: "Default",
+    text: "Fitur keamanan MFA pada data pegawai berfungsi untuk memverifikasi login menggunakan...",
+    weight: 1,
+    correct_ans: "B",
+    options: {
+      A: "Sidik jari (Fingerprint)",
+      B: "Kode OTP yang dikirim ke Email",
+      C: "Scan wajah (Face ID)",
+      D: "Pertanyaan keamanan masa kecil"
+    },
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
   }
 ];
 (globalThis as any).mockQuestions = mockQuestions;
@@ -102,6 +263,17 @@ let mockExams: any[] = (globalThis as any).mockExams || [
     duration_minutes: 60,
     can_retake: true,
     module: { title: "Pengenalan Sistem Keamanan IT Bank" }
+  },
+  {
+    id: 3,
+    title: "Kuis Pengujian UET",
+    module_id: 3,
+    question_set_name: "Default",
+    start_date: new Date(),
+    end_date: new Date(Date.now() + 86400000 * 30),
+    duration_minutes: 15,
+    can_retake: true,
+    module: { title: "Modul Pengujian UET (User Evaluation Test)" }
   }
 ];
 (globalThis as any).mockExams = mockExams;
