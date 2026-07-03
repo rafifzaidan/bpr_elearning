@@ -201,14 +201,6 @@ class ProfileScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    Divider(height: 1, color: borderColor, indent: 64, endIndent: 20),
-                    _ActionTile(
-                      icon: Icons.security_outlined,
-                      title: 'Pengaturan MFA',
-                      textColor: textColor,
-                      primaryColor: primaryColor,
-                      onTap: () {},
-                    ),
                   ],
                 ),
               ),
