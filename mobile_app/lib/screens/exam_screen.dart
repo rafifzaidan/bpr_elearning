@@ -6,6 +6,7 @@ import '../models/question.dart';
 import '../providers/exam_provider.dart';
 import '../providers/module_provider.dart';
 import 'pdf_viewer_screen.dart';
+import 'video_player_screen.dart';
 
 class ExamScreen extends StatefulWidget {
   final Exam exam;
@@ -474,7 +475,12 @@ class _ExamScreenState extends State<ExamScreen> {
                               ),
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pemutar video belum tersedia')));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => VideoPlayerScreen(url: url, title: _module!.title),
+                              ),
+                            );
                           }
                         }
                       },

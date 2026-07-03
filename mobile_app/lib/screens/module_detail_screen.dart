@@ -8,6 +8,7 @@ import '../providers/module_provider.dart';
 import '../providers/exam_provider.dart';
 import 'pdf_viewer_screen.dart';
 import 'exam_screen.dart';
+import 'video_player_screen.dart';
 
 class ModuleDetailScreen extends StatelessWidget {
   final Module module;
@@ -115,8 +116,27 @@ class ModuleDetailScreen extends StatelessWidget {
                   onPressed: () async {
                     if (module.fileType == 'video') {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Pemutar video belum tersedia saat ini')),
+                        const SnackBar(content: Text('Menyiapkan pemutar video...'), duration: Duration(seconds: 1)),
                       );
+                      
+                      final url = await moduleProv.getFileUrl(module.fileUrl!);
+                      if (context.mounted) {
+                        if (url != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => VideoPlayerScreen(
+                                url: url,
+                                title: module.title,
+                              ),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Gagal mendapatkan link video')),
+                          );
+                        }
+                      }
                       return;
                     }
 
