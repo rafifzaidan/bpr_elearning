@@ -1,111 +1,186 @@
 \chapter{PANDUAN OPERASIONAL PENGGUNA (USER GUIDE)}
 
-Bab ini menyajikan panduan langkah-demi-langkah penggunaan platform \textit{e-Learning} PT. BPR Jatim bagi kedua jenis pengguna: Administrator PSDM (melalui Portal Web) dan Karyawan (melalui Aplikasi Mobile). Setiap langkah dilengkapi dengan tangkapan layar (\textit{screenshot}) untuk mempermudah pemahaman.
+Bab ini menyajikan panduan langkah-demi-langkah penggunaan platform \textit{e-Learning} PT. BPR Jatim bagi kedua jenis pengguna: Administrator PSDM (melalui Portal Web) dan Karyawan (melalui Aplikasi Mobile). Setiap langkah dilengkapi dengan petunjuk tangkapan layar (\textit{screenshot}) untuk mempermudah pemahaman operasional sistem.
 
 \section{Panduan Web Administrator (Divisi PSDM)}
-Portal Web Admin diakses oleh staf PSDM melalui peramban (\textit{browser}) menggunakan kredensial khusus administrator.
+Portal Web Admin diakses oleh staf PSDM melalui peramban (\textit{browser}) menggunakan kredensial khusus administrator untuk mengelola data pegawai, modul pelatihan, kuis, dan memantau nilai evaluasi.
 
 \subsection{Login Portal Web Admin}
+Keamanan portal admin dilindungi oleh autentikasi berbasis cookie sesi. Berikut adalah langkah untuk masuk ke sistem:
 \begin{enumerate}
-    \item Buka peramban (\textit{browser}) dan akses alamat URL portal \textit{e-Learning} kantor.
-    \item Masukkan email administrator dan kata sandi pada halaman login sebagaimana ditunjukkan pada Gambar \ref{fig:login_web}.
-    \item Klik tombol \textbf{Masuk}. Jika kredensial valid, sistem akan mengarahkan pengguna ke halaman \textit{Dashboard} utama.
+    \item Buka peramban (\textit{browser}) internet Anda dan akses alamat URL portal \textit{e-Learning} admin.
+    \item Masukkan email administrator yang valid (contoh: \texttt{admin@bpr.com} atau \texttt{rafifsd25@gmail.com}) dan kata sandi Anda pada kolom input yang tersedia (Gambar \ref{fig:login_web}).
+    \item Jika Anda sedang melakukan uji coba dalam jaringan kantor yang memblokir Supabase (offline), gunakan kata sandi khusus pengujian: \textbf{\texttt{AdminPassword123!}}.
+    \item Klik tombol \textbf{Sign in}. Jika kredensial salah, sistem akan menampilkan notifikasi pesan merah \textit{"Kredensial tidak valid"} di atas formulir.
+    \item Jika Anda mencoba mengakses halaman internal (seperti \texttt{/users} atau \texttt{/modules}) secara langsung tanpa login, sistem keamanan middleware akan otomatis menolak akses dan mengarahkan (\textit{redirect}) Anda kembali ke halaman login.
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{image/loginweb.jpeg}
+    \includegraphics[width=0.85\textwidth]{loginweb.png}
     \caption{Halaman Login Portal Web Administrator}
     \label{fig:login_web}
 \end{figure}
 
 \subsection{Dashboard Utama}
-Setelah berhasil login, Admin akan melihat halaman \textit{Dashboard} utama yang menampilkan ringkasan statistik sistem, termasuk jumlah karyawan terdaftar, jumlah modul aktif, dan grafik analitik nilai kuis. Tampilan \textit{Dashboard} ditunjukkan pada Gambar \ref{fig:dashboard_web}.
+Setelah berhasil masuk, administrator akan diarahkan ke halaman \textit{Dashboard} utama (Gambar \ref{fig:dashboard_web}) yang menyajikan informasi analitik ringkas sebagai berikut:
+\begin{enumerate}
+    \item \textbf{Kartu Statistik Utama}: Menampilkan total pegawai non-admin yang terdaftar, total modul materi, jumlah jadwal ujian yang sedang aktif, dan nilai rata-rata skor kelulusan secara \textit{real-time}.
+    \item \textbf{Grafik Performa Nilai Bulanan}: Grafik batang (\textit{bar chart}) yang menunjukkan fluktuasi rata-rata nilai kuis per bulan.
+    \item \textbf{Grafik Distribusi Divisi}: Diagram lingkaran (\textit{pie chart}) yang menunjukkan pembagian jumlah karyawan non-admin di tiap divisi (seperti divisi Akuntansi dan Teknologi Informasi).
+    \item \textbf{Tabel Hasil Ujian Terbaru}: Menampilkan daftar 5 riwayat pengerjaan kuis terakhir lengkap dengan Nama, Ujian, Skor, Status Kelulusan (Lulus/Gagal), dan Tanggal Selesai.
+\end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{image/dashboard-putih-pagination.png}
+    \includegraphics[width=0.85\textwidth]{dashboard_web.png}
     \caption{Halaman Dashboard Utama Portal Web Admin}
     \label{fig:dashboard_web}
 \end{figure}
 
 \subsection{Manajemen Data Karyawan}
+Menu ini berfungsi untuk memanipulasi data karyawan yang berhak mengikuti pelatihan. Tampilan utama pengelolaan data karyawan ditunjukkan pada Gambar \ref{fig:kelola_karyawan}.
 \begin{enumerate}
-    \item Klik menu \textbf{Karyawan} pada \textit{sidebar} kiri untuk melihat daftar seluruh karyawan PT. BPR Jatim yang terdaftar (Gambar \ref{fig:kelola_karyawan}).
-    \item Untuk menambah karyawan baru, klik tombol \textbf{Tambah Karyawan}, masukkan NIP, nama lengkap, divisi, email, dan \textit{password} bawaan (Gambar \ref{fig:tambah_karyawan}). Klik \textbf{Simpan}.
-    \item Untuk mengedit data karyawan, klik ikon \textbf{Edit} pada baris karyawan yang ingin diubah. Lakukan perubahan data dan klik \textbf{Simpan}.
-    \item Untuk menghapus karyawan, klik ikon \textbf{Hapus} dan konfirmasi penghapusan.
+    \item \textbf{Pencarian \& Filter}: Anda dapat mencari data karyawan secara spesifik dengan mengetikkan Nama atau NIP pada kolom pencarian, serta memfilter daftar berdasarkan divisi melalui dropdown yang tersedia.
+    \item \textbf{Tambah Karyawan Baru}: 
+    \begin{itemize}
+        \item Klik tombol \textbf{Tambah Karyawan} untuk membuka modal input (Gambar \ref{fig:tambah_karyawan}).
+        \item Isi field NIP, Email, Nama Lengkap, Divisi (Akuntansi / Teknologi Informasi), dan Role (\texttt{EMPLOYEE} atau \texttt{LEADER}).
+        \item Masukkan \textit{password} bawaan kuis, lalu tekan \textbf{Simpan}.
+        \item Jika ingin membatalkan pengisian, klik tombol \textbf{Batal} atau klik di luar area modal. Sistem akan menampilkan dialog konfirmasi peringatan untuk mencegah hilangnya data yang sudah diisi (Gambar \ref{fig:modal_konfirmasi_batal}).
+    \end{itemize}
+    \item \textbf{Edit Data \& Reset Password}:
+    \begin{itemize}
+        \item Klik ikon \textbf{Edit} (pensil) pada baris pegawai yang diinginkan.
+        \item Anda dapat mengubah data nama/divisi, mencentang/menghilangkan centang \textbf{Aktifkan MFA} (Autentikasi OTP Email), atau mengisi field \textbf{Ganti Password Baru} untuk mereset kata sandi pegawai tersebut.
+        \item Klik \textbf{Simpan Perubahan}. Notifikasi modal berhasil tersimpan akan muncul di tengah layar.
+    \end{itemize}
+    \item \textbf{Hapus Data Pegawai}: Klik ikon \textbf{Hapus} (tempat sampah) pada baris pegawai. Dialog konfirmasi \textit{"Apakah Anda yakin ingin menghapus pegawai [nama]?"} akan muncul terlebih dahulu sebelum data dihapus permanen dari sistem.
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{image/halaman-kelola-karyawan.png}
+    \includegraphics[width=0.85\textwidth]{halaman_kelola_karyawan.png}
     \caption{Halaman Kelola Data Karyawan}
     \label{fig:kelola_karyawan}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{image/fitur-tambah-pegawai.png}
-    \caption{Form Tambah Data Karyawan Baru}
+    \includegraphics[width=0.70\textwidth]{fitur_tambah_pegawai.png}
+    \caption{Form Tambah / Edit Data Karyawan}
     \label{fig:tambah_karyawan}
 \end{figure}
 
-\subsection{Pengunggahan Modul Pembelajaran}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\textwidth]{modal_konfirmasi_batal.png}
+    \caption{Dialog Peringatan Batal Mengisi Formulir}
+    \label{fig:modal_konfirmasi_batal}
+\end{figure}
+
+\subsection{Manajemen Modul Pembelajaran}
+Menu ini digunakan untuk mengelola berkas materi pelatihan yang akan dibaca oleh karyawan melalui aplikasi handphone mereka (Gambar \ref{fig:kelola_materi}).
 \begin{enumerate}
-    \item Masuk ke menu \textbf{Kelola Materi} pada \textit{sidebar} kiri (Gambar \ref{fig:kelola_materi}).
-    \item Klik \textbf{Unggah Modul Baru}.
-    \item Masukkan judul modul, pilih divisi sasaran pelatihan, dan unggah berkas berformat PDF (Gambar \ref{fig:tambah_modul}).
-    \item Klik \textbf{Simpan}. Berkas secara otomatis terunggah ke \textit{bucket} penyimpanan Supabase Storage dan dapat diakses langsung oleh karyawan sasaran.
+    \item \textbf{Tampilan Modul}: Modul disajikan dalam bentuk kartu (\textit{card}) informatif yang menampilkan sampul, judul, ringkasan deskripsi, tipe file, dan divisi sasaran. Anda dapat menyaring modul menggunakan bilah pencarian.
+    \item \textbf{Unggah Modul Baru}:
+    \begin{itemize}
+        \item Klik tombol \textbf{Tambah Modul} (Gambar \ref{fig:tambah_modul}).
+        \item Masukkan Judul Modul dan Deskripsi Materi.
+        \item Centang divisi sasaran pelatihan. Anda dapat mencentang lebih dari satu divisi (\textit{Assign Multi-Division}) agar modul ini muncul di aplikasi karyawan beberapa departemen sekaligus.
+        \item Pilih Tipe File (\textbf{PDF} atau \textbf{Video}). Unggah berkas dokumen PDF / video MP4 materi pelatihan, serta berkas gambar sampul modul.
+        \item Klik \textbf{Simpan Modul}. Berkas akan diunggah aman ke server penyimpanan dan dialog sukses akan muncul di tengah layar.
+    \end{itemize}
+    \item \textbf{Preview Materi}: Klik tombol preview atau judul modul pada kartu. Modal \textit{viewer} akan muncul secara interaktif menampilkan dokumen PDF langsung di dalam peramban, atau memutar berkas video MP4 secara \textit{embedded} (Gambar \ref{fig:preview_materi}).
+    \item \textbf{Edit \& Hapus Modul}: Anda dapat mengedit detail materi kuis dengan mengklik ikon edit di kanan bawah kartu. Penghapusan modul dilakukan dengan mengklik ikon hapus merah, yang secara otomatis akan membersihkan semua data jadwal kuis dan bank soal yang berkaitan dengan modul tersebut.
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{image/halaman-kelola-materi.png}
+    \includegraphics[width=0.85\textwidth]{halaman_kelola_materi.png}
     \caption{Halaman Kelola Materi Pelatihan}
     \label{fig:kelola_materi}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{image/fitur-tambah-modul.png}
+    \includegraphics[width=0.70\textwidth]{fitur_tambah_modul.png}
     \caption{Form Unggah Modul Pelatihan Baru}
     \label{fig:tambah_modul}
 \end{figure}
 
-\subsection{Pembuatan Soal \& Kuis Evaluasi}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.80\textwidth]{modal_preview_materi.png}
+    \caption{Modal Preview Materi PDF dan Video}
+    \label{fig:preview_materi}
+\end{figure}
+
+\subsection{Pembuatan Kuis \& Bank Soal}
+Menu **Kelola Kuis** berfungsi untuk mengatur jadwal pengerjaan ujian kompetensi bagi modul terkait, serta menyusun daftar pertanyaan ujian.
 \begin{enumerate}
-    \item Masuk ke menu \textbf{Kelola Ujian} pada \textit{sidebar} kiri.
-    \item Klik \textbf{Buat Ujian Baru}, masukkan nama kuis, pilih modul terkait, tentukan KKM (skor minimal kelulusan), serta durasi pengerjaan.
-    \item Klik detail ujian tersebut dan pilih \textbf{Tambah Soal}. Masukkan teks pertanyaan, pilihan jawaban A, B, C, dan D, serta tentukan pilihan yang merupakan kunci jawaban benar (Gambar \ref{fig:kelola_soal}).
+    \item \textbf{Memilih Modul}: Akses menu Kelola Kuis dari sidebar kiri, lalu klik modul terkait. Halaman detail kuis akan terbuka dengan dua tab navigasi utama: \textbf{Jadwal Ujian} dan \textbf{Bank Soal} (Gambar \ref{fig:kelola_soal}).
+    \item \textbf{Manajemen Jadwal Ujian}:
+    \begin{itemize}
+        \item Klik tombol \textbf{Jadwalkan Ujian} pada tab Jadwal Ujian.
+        \item Isi Nama Ujian, Batas Waktu Mulai, Batas Waktu Selesai, dan Durasi Ujian (dalam menit).
+        \item Centang checkbox \textbf{Bisa dikerjakan ulang?} jika Anda mengizinkan karyawan mengulang ujian tersebut untuk memperbaiki nilai (\textit{Retake}).
+        \item Klik \textbf{Buat Jadwal}. Sistem akan otomatis menampilkan status ujian: \textit{Mendatang} (jika belum waktu mulai), \textit{Aktif} (sedang berjalan), atau \textit{Selesai} (melewati tanggal berakhir).
+    \end{itemize}
+    \item \textbf{Penyusunan Bank Soal}:
+    \begin{itemize}
+        \item Beralihlah ke tab \textbf{Bank Soal}. Pilih jadwal ujian yang ingin diisi soalnya pada dropdown filter.
+        \item Klik tombol \textbf{Tambah Pertanyaan} untuk membuka form input soal (Gambar \ref{fig:form_soal}).
+        \item Tuliskan Teks Soal, Pilihan Opsi jawaban (A, B, C, D), Bobot Soal, dan pilih opsi yang merupakan Kunci Jawaban Benar.
+        \item Tekan \textbf{Simpan Soal}. Soal yang tersimpan akan tampil di daftar bank soal dengan tanda highlight warna hijau dan ikon centang khusus pada opsi jawaban yang benar (Gambar \ref{fig:detail_soal}).
+        \item Anda dapat mengedit soal atau menghapus soal yang tidak digunakan dengan menekan ikon aksi di samping kanan kartu soal.
+    \end{itemize}
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{image/halaman-kelola-soal-kuis.png}
+    \includegraphics[width=0.85\textwidth]{halaman_kelola_soal_kuis.png}
     \caption{Halaman Kelola Soal Kuis Evaluasi}
     \label{fig:kelola_soal}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{image/web-kelola-soal.png}
+    \includegraphics[width=0.85\textwidth]{web_kelola_soal.png}
     \caption{Detail Kelola Soal dan Kunci Jawaban}
     \label{fig:detail_soal}
 \end{figure}
 
-\subsection{Pemantauan Nilai \& Analitik}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.70\textwidth]{form_soal_ujian.png}
+    \caption{Form Tambah / Edit Pertanyaan Kuis}
+    \label{fig:form_soal}
+\end{figure}
+
+\subsection{Pemantauan Nilai Karyawan}
+Menu **Pantau Nilai Karyawan** (Gambar \ref{fig:pantau_nilai}) digunakan oleh PSDM untuk memonitor hasil pengerjaan kuis dari seluruh pegawai secara transparan.
 \begin{enumerate}
-    \item Masuk ke menu \textbf{Dashboard Nilai} atau \textbf{Pantau Nilai Karyawan} (Gambar \ref{fig:pantau_nilai}).
-    \item Admin dapat memantau grafik rata-rata nilai kuis karyawan per divisi, melihat persentase kelulusan, serta menelusuri detail skor masing-masing karyawan.
-    \item Data nilai kuis dapat diekspor ke format \textit{spreadsheet} Excel untuk bahan laporan bulanan kepada manajemen.
+    \item \textbf{Statistik Kelulusan}: Bagian atas halaman memuat ringkasan performa ujian berupa Rata-rata Skor seluruh karyawan, jumlah peserta yang Lulus (mencapai batas nilai minimum kelulusan divisi), dan peserta yang Tidak Lulus.
+    \item \textbf{Filter \& Pencarian}: Anda dapat langsung mengetikkan Nama Karyawan atau NIP pada kotak pencarian untuk mencari secara instan, serta memfilter tabel dengan mengklik tab kategori: \textbf{Semua}, \textbf{Lulus}, atau \textbf{Tidak Lulus}.
+    \item \textbf{Daftar Hasil Terperinci}: Tabel menampilkan informasi lengkap berupa: Nama Pegawai, NIP, Divisi, Ujian yang Diikuti, Nilai Skor, Status Kelulusan (dengan badge Lulus hijau / Tidak Lulus merah), dan Waktu Selesai Pengerjaan.
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{image/halaman-pantau-nilai-karyawan.png}
+    \includegraphics[width=0.85\textwidth]{halaman_pantau_nilai_karyawan.png}
     \caption{Halaman Pemantauan Nilai dan Analitik Karyawan}
     \label{fig:pantau_nilai}
+\end{figure}
+
+\subsection{Sidebar Navigasi \& Keluar Sistem (Logout)}
+Untuk berpindah halaman secara dinamis, gunakan menu navigasi sidebar yang terletak di sisi kiri layar (Gambar \ref{fig:sidebar_admin}). Menu yang sedang Anda buka akan ditandai dengan highlight warna biru/terang. Jika Anda telah selesai bertugas, klik menu \textbf{Logout} di bagian paling bawah sidebar untuk menghapus cookie sesi keamanan Anda secara bersih dan mengarahkan peramban kembali ke halaman Login.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.30\textwidth]{sidebar_admin_web.png}
+    \caption{Tampilan Sidebar Menu dan Tombol Logout}
+    \label{fig:sidebar_admin}
 \end{figure}
 
 \newpage
