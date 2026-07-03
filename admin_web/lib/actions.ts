@@ -9,6 +9,16 @@ import { supabaseAdmin } from "./supabase";
 // Global mock state for offline testing
 let mockUsers: any[] = (globalThis as any).mockUsers || [
   {
+    id: "admin-id",
+    nip: "9999999999",
+    full_name: "Administrator Utama",
+    email: "admin@bpr.com",
+    role: "ADMIN",
+    division_id: 1,
+    division: { name: "Teknologi Informasi" },
+    created_at: new Date()
+  },
+  {
     id: "1",
     nip: "5323600013",
     full_name: "M. Rafif Zaidan Nuhaa",
