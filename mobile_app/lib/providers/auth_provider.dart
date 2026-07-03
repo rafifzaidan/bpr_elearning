@@ -67,8 +67,19 @@ class AuthProvider with ChangeNotifier {
       if (response.user != null) {
         debugPrint('DEBUG: Password Correct! Checking MFA status...');
         
-        // Force disable MFA/OTP email confirmation as per user request
+        // Fetch MFA status dynamically from database users table
         bool isMfaEnabled = false;
+        try {
+          final userProfile = await _supabase
+              .from('users')
+              .select('mfa_enabled')
+              .eq('id', response.user!.id)
+              .single();
+          isMfaEnabled = userProfile['mfa_enabled'] ?? false;
+          debugPrint('DEBUG: MFA status for user is: $isMfaEnabled');
+        } catch (e) {
+          debugPrint('DEBUG: Failed to fetch MFA status from database, defaulting to false: $e');
+        }
         
         if (isMfaEnabled) {
           debugPrint('DEBUG: MFA is enabled. Requesting OTP to email...');
