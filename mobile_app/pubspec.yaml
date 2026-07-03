@@ -43,6 +43,7 @@ dependencies:
   # Content Viewers
   flutter_pdfview: ^1.3.2         # PDF viewer untuk modul
   video_player: ^2.9.2            # Video player untuk modul
+  video_player_win: ^2.0.2        # Video player Windows support
   chewie: ^1.8.0                  # Video player UI wrapper
 
   # Utils
